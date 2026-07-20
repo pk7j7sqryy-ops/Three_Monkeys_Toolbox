@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>3Monkeys Sentinel — AI 网络安全 Agent</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,300;8..60,400;8..60,600;8..60,700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+  --bg-page: #F5F4EF;
+  --bg-surface: #FAF9F6;
+  --bg-elevated: #FFFFFF;
+  --bg-hover: #F0EFE9;
+  --bg-code: #F7F6F2;
+  --border: #E8E6DD;
+  --border-strong: #D8D5CA;
+  --text-primary: #2B2B2B;
+  --text-secondary: #6B6B6B;
+  --text-dim: #9B9B9B;
+  --accent: #C96442;
+  --accent-light: #E8A887;
+  --accent-bg: #FDF4F0;
+  --accent-hover: #B5552F;
+  --accent-soft: rgba(201, 100, 66, 0.08);
+  --green: #4A7C59;
+  --green-light: #7BA88A;
+  --green-bg: #F0F5F2;
+  --blue: #4B6CB7;
+  --blue-bg: #EEF1F9;
+  --purple: #7B5EA7;
+  --purple-bg: #F4F0F9;
+  --yellow: #B8860B;
+  --yellow-bg: #FAF5EA;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.06);
+  --shadow-lg: 0 12px 32px rgba(0,0,0,0.08);
+  --radius: 12px;
+  --radius-lg: 16px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Inter', -apple-system, sans-serif;
+  background: var(--bg-page);
+  color: var(--text-primary);
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: var(--bg-page); }
+::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-dim); }
+
+/* Top bar */
+.topbar {
+  position: fixed; top: 0; left: 0; right: 0;
+  background: rgba(245, 244, 239, 0.82);
+  backdrop-filter: blur(20px) saturate(180%);
+  border-bottom: 1px solid var(--border);
+  z-index: 100;
+  padding: 14px 0;
+}
+.topbar-inner {
+  max-width: 860px; margin: 0 auto; padding: 0 24px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.topbar-logo {
+  display: flex; align-items: center; gap: 10px;
+  font-family: 'Source Serif 4', serif;
+  font-size: 17px; font-weight: 600;
+  color: var(--text-primary);
+}
+.topbar-logo .monkeys { font-size: 20px; }
+.topbar-nav { display: flex; gap: 24px; }
+.topbar-nav a {
+  color: var(--text-secondary); text-decoration: none;
+  font-size: 13px; font-weight: 500;
+  transition: color 0.15s;
+}
+.topbar-nav a:hover { color: var(--accent); }
+
+/* Container */
+.container { max-width: 860px; margin: 0 auto; padding: 0 24px; }
+
+/* Hero */
+.hero {
+  padding: 140px 0 80px;
+  text-align: center;
+}
+.hero-eyebrow {
+  display: inline-block;
+  font-size: 13px; font-weight: 500;
+  color: var(--accent);
+  background: var(--accent-bg);
+  padding: 5px 14px; border-radius: 100px;
+  margin-bottom: 28px;
+  letter-spacing: 0.3px;
+}
+.hero h1 {
+  font-family: 'Source Serif 4', serif;
+  font-size: 52px; font-weight: 600;
+  line-height: 1.15; letter-spacing: -1.5px;
+  margin-bottom: 20px; color: var(--text-primary);
+}
+.hero h1 em {
+  font-style: italic; font-weight: 400;
+  color: var(--accent);
+}
+.hero-sub {
+  font-size: 18px; color: var(--text-secondary);
+  max-width: 580px; margin: 0 auto 40px;
+  line-height: 1.65;
+}
+.hero-monkeys {
+  display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;
+}
+.hero-monkey {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px 24px; text-align: center;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.2s, transform 0.2s;
+  min-width: 160px;
+}
+.hero-monkey:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+.hero-monkey .emoji { font-size: 32px; display: block; margin-bottom: 8px; }
+.hero-monkey .name {
+  font-size: 14px; font-weight: 600; margin-bottom: 4px;
+  font-family: 'Source Serif 4', serif;
+}
+.hero-monkey:nth-child(1) .name { color: var(--accent); }
+.hero-monkey:nth-child(2) .name { color: var(--green); }
+.hero-monkey:nth-child(3) .name { color: var(--blue); }
+.hero-monkey .desc { font-size: 12px; color: var(--text-dim); line-height: 1.5; }
+
+/* Section */
+.section { padding: 64px 0; }
+.section-eyebrow {
+  font-size: 12px; font-weight: 600;
+  color: var(--accent); text-transform: uppercase;
+  letter-spacing: 1.5px; margin-bottom: 10px;
+}
+.section-title {
+  font-family: 'Source Serif 4', serif;
+  font-size: 32px; font-weight: 600;
+  line-height: 1.25; margin-bottom: 14px;
+  letter-spacing: -0.8px;
+}
+.section-desc {
+  font-size: 16px; color: var(--text-secondary);
+  max-width: 620px; margin-bottom: 36px; line-height: 1.7;
+}
+
+/* Cards */
+.cards { display: grid; gap: 16px; }
+.cards-2 { grid-template-columns: repeat(2, 1fr); }
+.cards-3 { grid-template-columns: repeat(3, 1fr); }
+@media (max-width: 700px) { .cards-2, .cards-3 { grid-template-columns: 1fr; } }
+
+.card {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.2s;
+}
+.card:hover { box-shadow: var(--shadow-md); }
+.card-icon {
+  width: 36px; height: 36px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; margin-bottom: 14px;
+}
+.card h3 { font-size: 15px; font-weight: 600; margin-bottom: 6px; }
+.card p { font-size: 14px; color: var(--text-secondary); line-height: 1.6; }
+.card .tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 12px; }
+.card .tag {
+  font-size: 11px; font-family: 'JetBrains Mono', monospace;
+  background: var(--bg-code); padding: 2px 8px;
+  border-radius: 5px; color: var(--text-dim);
+}
+
+/* Comparison */
+.compare {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+.compare table { width: 100%; border-collapse: collapse; }
+.compare th {
+  background: var(--bg-code);
+  padding: 12px 16px; font-size: 12px; font-weight: 600;
+  text-align: left; color: var(--text-secondary);
+  border-bottom: 1px solid var(--border);
+  text-transform: uppercase; letter-spacing: 0.8px;
+}
+.compare td {
+  padding: 12px 16px; font-size: 14px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-secondary);
+}
+.compare tr:last-child td { border-bottom: none; }
+.compare td:first-child { color: var(--text-primary); font-weight: 500; }
+.compare .hl { color: var(--accent); font-weight: 600; }
+
+/* Code block */
+.code-block {
+  background: var(--bg-code);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px 28px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px; line-height: 1.8;
+  overflow-x: auto;
+  color: var(--text-secondary);
+  white-space: pre;
+}
+.code-block .kw { color: var(--accent); font-weight: 600; }
+.code-block .str { color: var(--green); }
+.code-block .dim { color: var(--text-dim); }
+.code-block .arrow { color: var(--accent); }
+
+/* Trace */
+.trace {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+}
+.trace-head {
+  background: var(--bg-code);
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 12px;
+}
+.trace-badge {
+  font-size: 11px; font-weight: 700;
+  padding: 2px 10px; border-radius: 100px;
+  background: var(--accent-bg); color: var(--accent);
+}
+.trace-title { font-size: 14px; font-weight: 600; }
+.trace-meta {
+  margin-left: auto; font-size: 12px;
+  color: var(--text-dim); font-family: 'JetBrains Mono', monospace;
+}
+.trace-body { padding: 16px 20px; }
+.t-step {
+  display: flex; gap: 14px; padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+.t-step:last-child { border-bottom: none; }
+.t-num {
+  font-family: 'JetBrains Mono', monospace; font-size: 11px;
+  color: var(--text-dim); min-width: 48px; padding-top: 2px;
+}
+.t-badge {
+  font-family: 'JetBrains Mono', monospace; font-size: 10px;
+  font-weight: 600; padding: 2px 8px; border-radius: 5px;
+  min-width: 64px; text-align: center;
+}
+.t-badge.think { background: var(--blue-bg); color: var(--blue); }
+.t-badge.act { background: var(--yellow-bg); color: var(--yellow); }
+.t-badge.obs { background: var(--green-bg); color: var(--green); }
+.t-badge.resp { background: var(--accent-bg); color: var(--accent); }
+.t-text { font-size: 13px; color: var(--text-secondary); flex: 1; }
+.t-text code {
+  font-family: 'JetBrains Mono', monospace; font-size: 12px;
+  background: var(--bg-code); padding: 1px 6px;
+  border-radius: 4px; color: var(--text-primary);
+}
+.t-text strong { color: var(--accent); }
+
+/* Pipeline */
+.pipe { display: flex; flex-direction: column; gap: 0; }
+.pipe-stage {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  display: flex; gap: 20px; align-items: flex-start;
+  box-shadow: var(--shadow-sm);
+  position: relative;
+  margin-bottom: 0;
+}
+.pipe-stage:not(:last-child) {
+  margin-bottom: 28px;
+}
+.pipe-stage:not(:last-child)::after {
+  content: ''; position: absolute; bottom: -28px; left: 24px;
+  width: 2px; height: 28px;
+  background: var(--border-strong);
+}
+.pipe-num {
+  width: 32px; height: 32px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Source Serif 4', serif; font-weight: 600; font-size: 15px;
+  flex-shrink: 0;
+}
+.pipe-stage:nth-child(1) .pipe-num { background: var(--blue-bg); color: var(--blue); }
+.pipe-stage:nth-child(2) .pipe-num { background: var(--purple-bg); color: var(--purple); }
+.pipe-stage:nth-child(3) .pipe-num { background: var(--yellow-bg); color: var(--yellow); }
+.pipe-stage:nth-child(4) .pipe-num { background: var(--green-bg); color: var(--green); }
+.pipe-content { flex: 1; }
+.pipe-content h4 { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+.pipe-content p { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+.pipe-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px; }
+
+/* Metrics */
+.metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+@media (max-width: 600px) { .metrics { grid-template-columns: repeat(2, 1fr); } }
+.metric {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px; text-align: center;
+  box-shadow: var(--shadow-sm);
+}
+.metric-val {
+  font-family: 'Source Serif 4', serif;
+  font-size: 28px; font-weight: 600;
+  margin-bottom: 2px;
+}
+.metric-label { font-size: 11px; color: var(--text-dim); }
+
+/* Timeline */
+.timeline { position: relative; padding-left: 28px; }
+.timeline::before {
+  content: ''; position: absolute; left: 7px; top: 4px; bottom: 4px;
+  width: 2px; background: var(--border-strong);
+}
+.tl-item { position: relative; padding-bottom: 28px; }
+.tl-item::before {
+  content: ''; position: absolute; left: -25px; top: 5px;
+  width: 12px; height: 12px; border-radius: 50%;
+  background: var(--bg-elevated); border: 2px solid var(--border-strong);
+}
+.tl-item.active::before { border-color: var(--accent); background: var(--accent); }
+.tl-phase {
+  font-family: 'JetBrains Mono', monospace; font-size: 11px;
+  color: var(--accent); margin-bottom: 3px;
+}
+.tl-title { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+.tl-desc { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+
+/* Tech grid */
+.tech-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
+}
+@media (max-width: 600px) { .tech-grid { grid-template-columns: repeat(2, 1fr); } }
+.tech {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 10px; padding: 14px;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.15s;
+}
+.tech:hover { box-shadow: var(--shadow-md); }
+.tech-name { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
+.tech-role {
+  font-size: 10px; color: var(--text-dim);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Note callout */
+.note {
+  background: var(--accent-soft);
+  border-left: 3px solid var(--accent);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: 16px 20px;
+  font-size: 14px; color: var(--text-secondary);
+  margin: 20px 0;
+}
+.note strong { color: var(--accent); }
+
+/* Doc links */
+.doc-list { display: grid; gap: 10px; }
+.doc-item {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  display: flex; align-items: center; gap: 16px;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.15s, background 0.15s;
+  text-decoration: none;
+}
+.doc-item:hover { box-shadow: var(--shadow-md); background: var(--bg-hover); }
+.doc-icon { font-size: 24px; flex-shrink: 0; }
+.doc-info { flex: 1; }
+.doc-info h4 { font-size: 14px; font-weight: 600; margin-bottom: 2px; color: var(--text-primary); }
+.doc-info p { font-size: 13px; color: var(--text-dim); }
+.doc-arrow { color: var(--text-dim); font-size: 18px; }
+
+/* Footer */
+footer {
+  border-top: 1px solid var(--border);
+  padding: 40px 24px; text-align: center;
+  margin-top: 40px;
+}
+footer p { font-size: 13px; color: var(--text-dim); }
+footer .heart { color: var(--accent); }
+
+@media (max-width: 768px) {
+  .hero h1 { font-size: 36px; }
+  .hero-sub { font-size: 16px; }
+  .section-title { font-size: 26px; }
+  .topbar-nav { display: none; }
+  .hero-monkeys { flex-direction: column; align-items: center; }
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="topbar-logo">
+      <span class="monkeys">🙈🙉🙊</span>
+      <span>3Monkeys Sentinel</span>
+    </div>
+    <div class="topbar-nav">
+      <a href="#philosophy">理念</a>
+      <a href="#architecture">架构</a>
+      <a href="#agent">Agent</a>
+      <a href="#pipeline">Pipeline</a>
+      <a href="#tech">技术栈</a>
+      <a href="#roadmap">路线图</a>
+    </div>
+  </div>
+</div>
+
+<!-- Hero -->
+<div class="container">
+  <div class="hero">
+    <span class="hero-eyebrow">AI-Driven Autonomous Security Agent</span>
+    <h1>三只猴子，<em>守卫你的网络</em></h1>
+    <p class="hero-sub">
+      不是被动检测工具，而是能自主调查、关联分析、主动响应的 AI 网络安全 Agent。
+      像人类安全分析师一样思考，像机器一样快速响应。
+    </p>
+    <div class="hero-monkeys">
+      <div class="hero-monkey">
+        <span class="emoji">🙈</span>
+        <div class="name">Mizaru · 见不恶魔</div>
+        <div class="desc">流量检测<br>识别恶意攻击</div>
+      </div>
+      <div class="hero-monkey">
+        <span class="emoji">🙉</span>
+        <div class="name">Kikazaru · 听不恶魔</div>
+        <div class="desc">通信分析<br>监听异常回连</div>
+      </div>
+      <div class="hero-monkey">
+        <span class="emoji">🙊</span>
+        <div class="name">Iwazaru · 说不恶魔</div>
+        <div class="desc">数据保护<br>阻止数据外泄</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Philosophy -->
+<div class="container">
+  <div class="section" id="philosophy">
+    <div class="section-eyebrow">Philosophy</div>
+    <h2 class="section-title">不只是检测，是<em style="font-style:italic; color:var(--accent);">调查</em></h2>
+    <p class="section-desc">
+      传统 NIDS 规则命中就告警。3Monkeys Sentinel 让 LLM 像安全分析师一样自主调查可疑流量，并把整个推理过程可视化。
+    </p>
+
+    <div class="compare">
+      <table>
+        <thead>
+          <tr><th>维度</th><th>传统 IDS/IPS</th><th>AI 检测工具</th><th>3Monkeys Sentinel</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>LLM 角色</td><td>无</td><td>分类器</td><td class="hl">决策者（思考→行动→观察→再思考）</td></tr>
+          <tr><td>分析方式</td><td>规则匹配</td><td>单包单次分类</td><td class="hl">多步关联调查，自主决定路径</td></tr>
+          <tr><td>响应能力</td><td>阻断/告警</td><td>只能告警</td><td class="hl">封禁/隔离/通知/生成报告</td></tr>
+          <tr><td>记忆能力</td><td>无</td><td>无</td><td class="hl">三层记忆，跨事件关联</td></tr>
+          <tr><td>自主性</td><td>被动匹配</td><td>被动分类</td><td class="hl">主动调查 + 主动响应</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Architecture -->
+<div class="container">
+  <div class="section" id="architecture">
+    <div class="section-eyebrow">Architecture</div>
+    <h2 class="section-title">双层检测架构</h2>
+    <p class="section-desc">
+      规则引擎做第一道快筛（&lt;1ms/包），只把疑似威胁送入 Agent 深度调查（500ms~3s），性能与深度兼顾。
+    </p>
+
+    <div class="code-block"><span class="dim">网卡流量 (~1000+ 包/秒)</span>
+  <span class="arrow">│</span>
+  <span class="arrow">▼</span>
+┌──────────────────────────────────────────────┐
+│  <span class="kw">第一层：规则引擎</span> (快筛, &lt;1ms/包)              │
+│  正则匹配 + 威胁情报本地缓存                       │
+│  ├── 命中 <span class="arrow">→</span> 直接告警 (SQLi/XSS/命令注入)          │
+│  ├── 正常 <span class="arrow">→</span> 放行                                 │
+│  └── <span class="str">疑似</span> <span class="arrow">→</span> 送入 Agent                          │
+└──────────────┬───────────────────────────────┘
+               <span class="arrow">│</span> ~5% 流量
+               <span class="arrow">▼</span>
+┌──────────────────────────────────────────────┐
+│  <span class="kw">第二层：Agent 自主调查</span> (500ms~3s)               │
+│  Think <span class="arrow">→</span> Act <span class="arrow">→</span> Observe <span class="arrow">→</span> Think <span class="arrow">→</span> ... <span class="arrow">→</span> Respond │
+│  <span class="dim">• LLM 自主决定调查路径</span>                          │
+│  <span class="dim">• 调用 14 个工具收集/关联/响应</span>                   │
+│  <span class="dim">• 三层记忆关联历史事件</span>                          │
+│  <span class="dim">• 输出结构化决策 + 响应动作</span>                      │
+└──────────────────────────────────────────────┘</div>
+
+    <div class="cards cards-3" style="margin-top:20px;">
+      <div class="card">
+        <div class="card-icon" style="background:var(--green-bg);">⚡</div>
+        <h3 style="color:var(--green);">规则引擎（快）</h3>
+        <p>正则匹配 + Suricata 语法兼容，处理 95% 流量，&lt;1ms 完成判断。社区规则可直接复用。</p>
+        <div class="tags"><span class="tag">Scapy</span><span class="tag">Regex</span></div>
+      </div>
+      <div class="card">
+        <div class="card-icon" style="background:var(--accent-bg);">🧠</div>
+        <h3 style="color:var(--accent);">Agent 调查（深）</h3>
+        <p>LangGraph 推理循环，LLM 自主决定调查路径。面对不同威胁，调查路径不同。最多 10 步。</p>
+        <div class="tags"><span class="tag">LangGraph</span><span class="tag">Qwen2.5-7B</span></div>
+      </div>
+      <div class="card">
+        <div class="card-icon" style="background:var(--blue-bg);">🛡️</div>
+        <h3 style="color:var(--blue);">主动响应</h3>
+        <p>封禁 IP、封禁域名、通知用户、生成事件报告。白名单保护，默认半自动模式。</p>
+        <div class="tags"><span class="tag">Firewall</span><span class="tag">Audit</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Agent Trace -->
+<div class="container">
+  <div class="section" id="agent">
+    <div class="section-eyebrow">Agent Trace</div>
+    <h2 class="section-title">推理链路可视化</h2>
+    <p class="section-desc">
+      用户不只看到「有威胁」，还能看到 AI 是怎么一步步推理出来的。这是项目的最大亮点。
+    </p>
+
+    <div class="trace">
+      <div class="trace-head">
+        <span class="trace-badge">CRITICAL</span>
+        <span class="trace-title">C2 回连检测</span>
+        <span class="trace-meta">置信度 95% · 4 步 · 3.2s</span>
+      </div>
+      <div class="trace-body">
+        <div class="t-step">
+          <div class="t-num">Step 1</div>
+          <div class="t-badge think">THINK</div>
+          <div class="t-text">目标 IP 不常见，先查威胁情报</div>
+        </div>
+        <div class="t-step">
+          <div class="t-num">Step 1</div>
+          <div class="t-badge act">ACT</div>
+          <div class="t-text"><code>query_threat_intel("185.220.101.42")</code></div>
+        </div>
+        <div class="t-step">
+          <div class="t-num">Step 1</div>
+          <div class="t-badge obs">OBSERVE</div>
+          <div class="t-text">Tor 出口节点，恶意评分 85%</div>
+        </div>
+        <div class="t-step">
+          <div class="t-num">Step 2</div>
+          <div class="t-badge think">THINK</div>
+          <div class="t-text">Tor + 高恶意评分，查历史连接模式</div>
+        </div>
+        <div class="t-step">
+          <div class="t-num">Step 2</div>
+          <div class="t-badge act">ACT</div>
+          <div class="t-text"><code>query_traffic_history("185.220.101.42")</code></div>
+        </div>
+        <div class="t-step">
+          <div class="t-num">Step 2</div>
+          <div class="t-badge obs">OBSERVE</div>
+          <div class="t-text">24h 内连接 47 次，间隔方差极小（规律性连接）</div>
+        </div>
+        <div class="t-step">
+          <div class="t-num">Step 3</div>
+          <div class="t-badge think">THINK</div>
+          <div class="t-text">规律性连接 + Tor = 疑似 C2 beacon，查 DNS</div>
+        </div>
+        <div class="t-step">
+          <div class="t-num">Step 3</div>
+          <div class="t-badge act">ACT</div>
+          <div class="t-text"><code>query_dns_history("185.220.101.42")</code></div>
+        </div>
+        <div class="t-step">
+          <div class="t-num">Step 3</div>
+          <div class="t-badge obs">OBSERVE</div>
+          <div class="t-text">关联域名 c2-update.tk，注册仅 3 天</div>
+        </div>
+        <div class="t-step">
+          <div class="t-num">Step 4</div>
+          <div class="t-badge resp">RESPOND</div>
+          <div class="t-text">Tor + 规律连接 + 新注册域名 = <strong>C2 确认</strong> → 封禁 IP + 通知用户 + 生成报告</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="note" style="margin-top:20px;">
+      <strong>三层记忆系统</strong> — 短期记忆（LangGraph State，单次调查）+ 长期记忆（SQLite，IP 画像 + 历史事件）+ 向量记忆（ChromaDB，语义相似事件检索）。
+    </div>
+  </div>
+</div>
+
+<!-- Pipeline -->
+<div class="container">
+  <div class="section" id="pipeline">
+    <div class="section-eyebrow">Model Pipeline</div>
+    <h2 class="section-title">完整模型 Pipeline</h2>
+    <p class="section-desc">
+      数据标注 → LoRA 微调 → 量化压缩 → 端侧部署。<strong style="color:var(--text-primary);">训推分离</strong>：云端训练，端侧推理，零边际成本。
+    </p>
+
+    <div class="pipe">
+      <div class="pipe-stage">
+        <div class="pipe-num">1</div>
+        <div class="pipe-content">
+          <h4>数据标注</h4>
+          <p>远程 72B 大模型自动标注 → 人工抽检校验（20%）。Alpaca 格式 500-1000 条安全领域指令对，覆盖 9 种攻击场景 + 数据增强。</p>
+          <div class="pipe-tags">
+            <span class="tag">Auto Label</span><span class="tag">Alpaca</span><span class="tag">Augment</span>
+          </div>
+        </div>
+      </div>
+      <div class="pipe-stage">
+        <div class="pipe-num">2</div>
+        <div class="pipe-content">
+          <h4>LoRA 微调</h4>
+          <p>Qwen2.5-7B-Instruct 基座，rank=16 / alpha=32 / dropout=0.05，3-5 epoch + 早停防过拟合。输出 adapter weights ~50MB。</p>
+          <div class="pipe-tags">
+            <span class="tag">PEFT</span><span class="tag">rank=16</span><span class="tag">Early Stop</span>
+          </div>
+        </div>
+      </div>
+      <div class="pipe-stage">
+        <div class="pipe-num">3</div>
+        <div class="pipe-content">
+          <h4>量化压缩</h4>
+          <p>Q4_K_M 4-bit 量化，GGUF 格式。模型体积 14GB → 4.5GB（-69%），精度损失 &lt; 2%，推理速度提升 50%。</p>
+          <div class="pipe-tags">
+            <span class="tag">Q4_K_M</span><span class="tag">GGUF</span><span class="tag">llama.cpp</span>
+          </div>
+        </div>
+      </div>
+      <div class="pipe-stage">
+        <div class="pipe-num">4</div>
+        <div class="pipe-content">
+          <h4>端侧部署</h4>
+          <p>Ollama 加载 GGUF（默认）/ llama.cpp 直接推理（备选）。内存占用 ~5GB，推理延迟 2-5s/次，普通笔记本可跑。</p>
+          <div class="pipe-tags">
+            <span class="tag">Ollama</span><span class="tag">llama.cpp</span><span class="tag">Zero Cost</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="compare" style="margin-top:24px;">
+      <table>
+        <thead>
+          <tr><th>指标</th><th>A 组（基线）</th><th>B 组（微调）</th><th>C 组（微调+Q4）</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>模型体积</td><td>14.5 GB</td><td>14.5 GB</td><td class="hl">4.5 GB</td></tr>
+          <tr><td>内存占用</td><td>~15 GB</td><td>~15 GB</td><td class="hl">~5 GB</td></tr>
+          <tr><td>推理延迟</td><td>5-10s</td><td>5-10s</td><td class="hl">2-5s</td></tr>
+          <tr><td>决策准确率</td><td>基线</td><td class="hl">↑ 10-15%</td><td>vs B ↓ 1-2%</td></tr>
+          <tr><td>误报率</td><td>~15%</td><td class="hl">~8%</td><td>~9%</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Memory & Data -->
+<div class="container">
+  <div class="section">
+    <div class="section-eyebrow">Data Tiers</div>
+    <h2 class="section-title">T1-T6 数据分级</h2>
+    <p class="section-desc">参考 Claude Code L1-L5 分级压缩设计，数据按价值分级存储，24h 总存储 &lt; 200MB。</p>
+
+    <div class="compare">
+      <table>
+        <thead>
+          <tr><th>层级</th><th>数据类型</th><th>存储</th><th>保留时间</th><th>24h 大小</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>T1</td><td>原始包</td><td>内存 Ring Buffer</td><td>60 秒</td><td>~50MB</td></tr>
+          <tr><td>T2</td><td>Flow 摘要</td><td>SQLite</td><td>1h / 30d</td><td>~25MB</td></tr>
+          <tr><td>T3</td><td>事件记录</td><td>SQLite</td><td>7d / 30d</td><td>~10MB</td></tr>
+          <tr><td>T4</td><td>IP 画像</td><td>SQLite</td><td>90d / 永久</td><td>~5MB</td></tr>
+          <tr><td>T5</td><td>向量记忆</td><td>ChromaDB</td><td>90 天</td><td>~50MB</td></tr>
+          <tr><td>T6</td><td>决策摘要</td><td>SQLite</td><td>永久</td><td>~1MB</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Tech Stack -->
+<div class="container">
+  <div class="section" id="tech">
+    <div class="section-eyebrow">Tech Stack</div>
+    <h2 class="section-title">技术选型</h2>
+    <p class="section-desc">每个选型都有明确理由，优先轻量、本地化、面试可讲。</p>
+
+    <div class="tech-grid">
+      <div class="tech"><div class="tech-name" style="color:var(--accent);">Tauri 2.0</div><div class="tech-role">桌面壳 · 5MB</div></div>
+      <div class="tech"><div class="tech-name" style="color:var(--accent);">React</div><div class="tech-role">前端 UI</div></div>
+      <div class="tech"><div class="tech-name" style="color:var(--green);">FastAPI</div><div class="tech-role">后端 · 异步</div></div>
+      <div class="tech"><div class="tech-name" style="color:var(--green);">Scapy</div><div class="tech-role">流量采集</div></div>
+      <div class="tech"><div class="tech-name" style="color:var(--purple);">LangGraph</div><div class="tech-role">Agent 框架</div></div>
+      <div class="tech"><div class="tech-name" style="color:var(--purple);">Ollama</div><div class="tech-role">本地 LLM</div></div>
+      <div class="tech"><div class="tech-name" style="color:var(--blue);">SQLite</div><div class="tech-role">结构化存储</div></div>
+      <div class="tech"><div class="tech-name" style="color:var(--blue);">ChromaDB</div><div class="tech-role">向量数据库</div></div>
+      <div class="tech"><div class="tech-name" style="color:var(--yellow);">PEFT/LoRA</div><div class="tech-role">参数高效微调</div></div>
+      <div class="tech"><div class="tech-name" style="color:var(--yellow);">llama.cpp</div><div class="tech-role">量化推理</div></div>
+      <div class="tech"><div class="tech-name" style="color:var(--text-secondary);">Pydantic</div><div class="tech-role">数据校验</div></div>
+      <div class="tech"><div class="tech-name" style="color:var(--text-secondary);">pytest</div><div class="tech-role">测试框架</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- Metrics -->
+<div class="container">
+  <div class="section">
+    <div class="section-eyebrow">Metrics</div>
+    <h2 class="section-title">性能基准目标</h2>
+    <div class="metrics">
+      <div class="metric">
+        <div class="metric-val" style="color:var(--green);">&lt;1ms</div>
+        <div class="metric-label">规则引擎延迟/包</div>
+      </div>
+      <div class="metric">
+        <div class="metric-val" style="color:var(--purple);">&lt;3s</div>
+        <div class="metric-label">Agent 调查延迟</div>
+      </div>
+      <div class="metric">
+        <div class="metric-val" style="color:var(--blue);">&lt;500MB</div>
+        <div class="metric-label">内存占用（24h）</div>
+      </div>
+      <div class="metric">
+        <div class="metric-val" style="color:var(--accent);">&lt;200MB</div>
+        <div class="metric-label">24h 数据存储</div>
+      </div>
+      <div class="metric">
+        <div class="metric-val" style="color:var(--yellow);">4.5GB</div>
+        <div class="metric-label">量化后模型体积</div>
+      </div>
+      <div class="metric">
+        <div class="metric-val" style="color:var(--green);">&lt;30MB</div>
+        <div class="metric-label">打包体积</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Roadmap -->
+<div class="container">
+  <div class="section" id="roadmap">
+    <div class="section-eyebrow">Roadmap</div>
+    <h2 class="section-title">开发路线图</h2>
+    <p class="section-desc">Phase 1 同步启动 Agent 架构设计，规则引擎和 Agent 核心并行推进。</p>
+
+    <div class="timeline">
+      <div class="tl-item active">
+        <div class="tl-phase">PHASE 1 · MVP</div>
+        <div class="tl-title">抓包 + 规则引擎 + 告警 + Agent 架构</div>
+        <div class="tl-desc">Scapy 抓包、规则引擎正则匹配、基础告警面板、Agent 图定义和工具注册器骨架。</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-phase">PHASE 2 · AGENT CORE</div>
+        <div class="tl-title">Agent 推理循环 + 工具集 + 记忆 + Trace 可视化</div>
+        <div class="tl-desc">LangGraph think-act-observe 循环、14 个工具实现、三层记忆系统、Agent Trace 前端实时推送。</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-phase">PHASE 3 · MODEL PIPELINE</div>
+        <div class="tl-title">数据标注 + LoRA 微调 + 量化 + 评估对比</div>
+        <div class="tl-desc">自动标注 pipeline、LoRA 微调 Qwen2.5-7B、Q4_K_M 量化、FP16/微调/Q4 三组评估对比。</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-phase">PHASE 4 · RELEASE</div>
+        <div class="tl-title">Tauri 打包 + 系统通知 + 体验完善</div>
+        <div class="tl-desc">.dmg 打包、首次运行引导、健康监控、规则自动更新、GitHub Release 发布。</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Documents -->
+<div class="container">
+  <div class="section">
+    <div class="section-eyebrow">Documents</div>
+    <h2 class="section-title">项目文档</h2>
+    <div class="doc-list">
+      <div class="doc-item">
+        <div class="doc-icon">📋</div>
+        <div class="doc-info">
+          <h4>需求文档</h4>
+          <p>11 个功能模块、9 种攻击场景矩阵、非功能需求</p>
+        </div>
+        <div class="doc-arrow">→</div>
+      </div>
+      <div class="doc-item">
+        <div class="doc-icon">🏗️</div>
+        <div class="doc-info">
+          <h4>设计文档</h4>
+          <p>架构、Agent 状态机、API 契约、记忆系统、运维、模型 Pipeline</p>
+        </div>
+        <div class="doc-arrow">→</div>
+      </div>
+      <div class="doc-item">
+        <div class="doc-icon">🧪</div>
+        <div class="doc-info">
+          <h4>测试文档</h4>
+          <p>39 场景评估数据集、Agent 行为 Mock 测试、三组量化对比</p>
+        </div>
+        <div class="doc-arrow">→</div>
+      </div>
+      <div class="doc-item">
+        <div class="doc-icon">📎</div>
+        <div class="doc-info">
+          <h4>参考文档</h4>
+          <p>GitHub 同类项目调研、Agent 安全威胁分析</p>
+        </div>
+        <div class="doc-arrow">→</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <p>3Monkeys Sentinel · AI-Driven Autonomous Network Security Agent</p>
+  <p style="margin-top:6px; font-size:12px;">Three Monkeys Toolbox · <span class="heart">🙈🙉🙊</span> · 2026</p>
+</footer>
+
+</body>
+</html>

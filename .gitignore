@@ -1,0 +1,50 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+
+# JetBrains IDE
+.idea/
+
+# VS Code
+.vscode/
+
+# TRAE IDE
+.trae-html-share-packages/
+
+# Claude local state
+.claude/settings.local.json
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.pytest_cache/
+.venv/
+venv/
+env/
+
+# Node
+node_modules/
+dist/
+build/
+
+# Env / Secrets
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+*.p12
+secrets/
+credentials.json
+
+# OS / Editor tmp
+*.swp
+*.swo
+*~
+.DS_Store?
+Thumbs.db

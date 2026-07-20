@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<title>Ailearn · 单元测试</title>
+<style>
+  body { font: 14px/1.7 ui-sans-serif, system-ui, sans-serif; max-width: 780px; margin: 40px auto; padding: 0 16px; color: #222; }
+  h1 { font-size: 20px; }
+  .pass { color: #1a7f4b; }
+  .fail { color: #c0392b; font-weight: 700; }
+  pre { background: #f4f4f4; padding: 8px 10px; border-radius: 6px; overflow: auto; font-size: 12px; }
+  #summary { margin: 14px 0 22px; font-weight: 700; }
+</style>
+</head>
+<body>
+<h1>Ailearn 单元测试（importers / markdown / srs）</h1>
+<div id="summary">运行中…</div>
+<div id="out"></div>
+
+<script src="js/markdown.js"></script>
+<script src="js/srs.js"></script>
+<script src="js/importers.js"></script>
+<script>
+const out = document.getElementById('out');
+let passed = 0, failed = 0;
+function t(name, fn) {
+  try { fn(); passed++; out.insertAdjacentHTML('beforeend', `<div class="pass">✓ ${name}</div>`); }
+  catch (e) { failed++; out.insertAdjacentHTML('beforeend', `<div class="fail">✕ ${name}<pre>${String(e && e.message || e).replace(/</g, '&lt;')}</pre></div>`); }
+}
+function eq(got, want, msg) {
+  const jg = JSON.stringify(got), jw = JSON.stringify(want);
+  if (jg !== jw) throw new Error((msg || '不相等') + '\n期望: ' + jw + '\n实际: ' + jg);
+}
+function ok(v, msg) { if (!v) throw new Error(msg || '期望为真'); }
+
+/* ---------------- markdown.js ---------------- */
+t('MD.render 转义 HTML，杜绝注入', () => {
+  ok(!MD.render('<img src=x onerror=alert(1)>').includes('<img'), 'img 标签未被转义');
+});
+t('MD.render 渲染安全链接（外链开新标签，锚点不开）', () => {
+  const h = MD.render('[论文](https://arxiv.org/abs/1) [锚点](#sec)');
+  ok(h.includes('href="https://arxiv.org/abs/1" target="_blank" rel="noopener"'), '外链属性不对');
+  ok(h.includes('href="#sec"') && !h.includes('href="#sec" target'), '锚点不应开新标签');
+});
+t('MD.render 拒绝 javascript: 协议', () => {
+  ok(!MD.render('[x](javascript:alert(1))').includes('<a'), '危险协议被渲染成了链接');
+});
+t('MD.render 标题 / 列表 / 表格 / 代码块', () => {
+  const h = MD.render('# 标题\n\n- 甲\n- 乙\n\n| a | b |\n|---|---|\n| 1 | 2 |\n\n```python\nx = 1\n```');
+  ok(h.includes('<h1'), '缺标题');
+  ok(h.includes('<ul') && h.includes('<li>甲</li>'), '缺列表');
+  ok(h.includes('<table') && h.includes('<td>1</td>'), '缺表格');
+  ok(h.includes('code-window') && h.includes('x = 1'), '缺代码块');
+});
+t('MD.firstHeading / plainPreview', () => {
+  eq(MD.firstHeading('前言\n## 真标题\n正文'), '真标题');
+  ok(!MD.plainPreview('```js\ncode\n```\n正文内容', 50).includes('code'), '预览不应包含代码块');
+});
+
+/* ---------------- importers.js 题库解析 ---------------- */
+const SAMPLE_MD = [
+  '一、单选题',
+  '1. 下列哪个是合法变量名？',
+  'A. 2var',
+  'B. var-1',
+  'C. _var1',
+  '答案：C',
+  '解析：变量名不能以数字开头。',
+  '二、多选题',
+  '下列属于可变类型的有？（多选）',
+  'A. list',
+  'B. dict',
+  'C. tuple',
+  '答案：AB',
+  '三、简答题',
+  '简述 for 与 while 的区别。',
+  '答案：for 用于已知次数；while 基于条件。',
+  '四、编程题',
+  '## 题目1：实现偶数求和',
+  '答案：def f(lst): return sum(n for n in lst if n % 2 == 0)',
+].join('\n');
+
+t('quizFromMd 解析出 4 道题', () => {
+  eq(Importers.quizFromMd(SAMPLE_MD, 'basic').length, 4);
+});
+t('单选题：题干 / 选项 / 答案 / 解析', () => {
+  const q = Importers.quizFromMd(SAMPLE_MD, 'basic')[0];
+  eq(q.type, 'single');
+  ok(q.q.includes('合法变量名'), '题干不对：' + q.q);
+  eq(q.options.length, 3);
+  eq(q.answer, ['C']);
+  ok(q.explain.includes('数字开头'), '解析不对');
+});
+t('多选题：答案 AB 解析为数组', () => {
+  const q = Importers.quizFromMd(SAMPLE_MD, 'basic')[1];
+  eq(q.type, 'multi');
+  eq(q.answer, ['A', 'B']);
+});
+t('简答题：紧贴答案上方的行作为题干', () => {
+  const q = Importers.quizFromMd(SAMPLE_MD, 'basic')[2];
+  eq(q.type, 'short');
+  eq(q.q, '简述 for 与 while 的区别。');
+  ok(q.answer.includes('已知次数'), '答案不对');
+});
+t('代码题：## 题目N 标题写法', () => {
+  const q = Importers.quizFromMd(SAMPLE_MD, 'basic')[3];
+  eq(q.type, 'code');
+  eq(q.q, '实现偶数求和');
+  ok(q.answer.includes('def f'), '答案不对');
+});
+t('noteFromMd：取首个标题做笔记标题，识别代码标记', () => {
+  const n = Importers.noteFromMd('# LoRA 笔记\n\n```py\nx\n```', 'x.md');
+  eq(n.title, 'LoRA 笔记');
+  eq(n.code, true);
+  ok(n.createdAt > 0, '缺 createdAt');
+});
+t('noteFromMd：无标题时回退文件名', () => {
+  eq(Importers.noteFromMd('纯文本内容', 'mynote.md').title, 'mynote');
+});
+
+/* ---------------- srs.js（SM-2 调度） ---------------- */
+t('SRS.ensure：新条目今天到期', () => {
+  const item = {};
+  SRS.ensure(item);
+  eq(item.srs.reps, 0);
+  ok(SRS.isDue(item), '新条目应立即到期');
+});
+t('SRS.review：good 序列 1 天 → 6 天，again 重置', () => {
+  const item = {};
+  SRS.review(item, 'good');
+  eq(item.srs.interval, 1, '第一次 good 应为 1 天');
+  SRS.review(item, 'good');
+  eq(item.srs.interval, 6, '第二次 good 应为 6 天');
+  SRS.review(item, 'again');
+  eq(item.srs.interval, 1, 'again 应重置为 1 天');
+  eq(item.srs.reps, 0, 'again 应清零连对');
+});
+t('SRS：易度因子不低于 1.3', () => {
+  const item = {};
+  for (let i = 0; i < 10; i++) SRS.review(item, 'again');
+  ok(item.srs.ef >= 1.3, 'ef 跌破下限：' + item.srs.ef);
+});
+t('SRS.due：按到期时间升序', () => {
+  const a = { srs: { ef: 2.5, interval: 0, reps: 0, due: 100, last: 0 } };
+  const b = { srs: { ef: 2.5, interval: 0, reps: 0, due: 50, last: 0 } };
+  eq(SRS.due([a, b], 200).map(x => x.srs.due), [50, 100]);
+});
+
+document.getElementById('summary').innerHTML =
+  failed === 0
+    ? `<span class="pass">全部通过：${passed} / ${passed}</span>`
+    : `<span class="fail">失败 ${failed} 项</span> · 通过 ${passed} 项`;
+</script>
+</body>
+</html>

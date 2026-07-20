@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<script>/* 首屏前恢复主题，避免浅色用户刷新时闪暗色 */
+try{var __t=localStorage.getItem('ai_theme')||(JSON.parse(localStorage.getItem('ailearn_tweaks_v1')||'{}').theme);if(__t)document.documentElement.setAttribute('data-theme',__t);}catch(e){}</script>
+<title>Ailearn · AI 学习闭环系统</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='6' fill='%23f5a623'/%3E%3Ctext x='12' y='17.5' text-anchor='middle' font-size='14' font-weight='800' font-family='sans-serif' fill='%231a1205'%3EAi%3C/text%3E%3C/svg%3E" />
+<link rel="stylesheet" href="css/theme.css" />
+<link rel="stylesheet" href="css/pages.css" />
+</head>
+<body>
+<div class="bg-stage"><canvas class="stars" id="stars"></canvas></div>
+
+<div class="app" id="app">
+  <!-- ===================== TOP NAV ===================== -->
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo">
+        <svg viewBox="0 0 24 24" fill="none"><text x="12" y="19" text-anchor="middle" font-size="24" font-weight="800" font-family="ui-sans-serif, system-ui, sans-serif" fill="currentColor">Ai</text></svg>
+      </div>
+      <div class="name">Ailearn</div>
+      <div class="sub">AI 学习闭环</div>
+    </div>
+
+    <nav class="nav" id="topnav"></nav>
+
+    <div class="spacer"></div>
+    <button class="topbar-search" id="globalSearchBtn" title="搜索笔记 (⌘K)" type="button">
+      <svg viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/><path d="M20 20l-3.5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      <span class="tbs-label">搜索笔记…</span>
+      <kbd class="tbs-kbd">⌘K</kbd>
+    </button>
+    <div class="util">
+      <button class="icon-btn" id="themeBtn" title="切换主题">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+      </button>
+      <button class="icon-btn" id="bellBtn" title="今日待复习">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M6 9a6 6 0 0 1 12 0c0 5 2 6 2 6H4s2-1 2-6Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M10 19a2 2 0 0 0 4 0" stroke="currentColor" stroke-width="2"/></svg>
+        <span class="bell-badge" id="bellBadge" hidden></span>
+      </button>
+      <div class="user-chip">
+        <div class="av">孙</div>
+        <div class="nm">小孙</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===================== BODY ===================== -->
+  <div class="body">
+    <!-- sidebar -->
+    <aside class="sidebar">
+      <div class="side-scroll">
+        <div class="side-group">
+          <div class="side-label">功能导航</div>
+          <div id="sideNav"></div>
+        </div>
+        <div class="side-group">
+          <div class="side-label">知识模块</div>
+          <div id="sideModules"></div>
+        </div>
+      </div>
+      <div class="side-foot">
+        <button class="collapse-btn" id="collapseBtn">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M15 6l-6 6 6 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span class="lbl">收起侧边栏</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- routed pages mount here -->
+    <main class="main" id="main"></main>
+  </div>
+</div>
+
+<!-- data + page renderers (vanilla) -->
+<script src="js/data.js"></script>
+<script src="js/store.js"></script>
+<script src="js/srs.js"></script>
+<script src="js/stats.js"></script>
+<script src="js/ai.js"></script>
+<script src="js/icons.js"></script>
+<script src="js/markdown.js"></script>
+<script src="js/wysiwyg.js"></script>
+<script src="js/importers.js"></script>
+<script src="js/tools.js"></script>
+<script src="js/pages/dashboard.js"></script>
+<script src="js/pages/tasks.js"></script>
+<script src="js/pages/notes.js"></script>
+<script src="js/pages/quiz.js"></script>
+<script src="js/pages/mistakes.js"></script>
+<script src="js/pages/review.js"></script>
+<script src="js/app.js"></script>
+<script src="js/search.js"></script>
+
+<!-- Tweaks (原生 JS，零依赖) -->
+<script src="js/tweaks.js"></script>
+</body>
+</html>
