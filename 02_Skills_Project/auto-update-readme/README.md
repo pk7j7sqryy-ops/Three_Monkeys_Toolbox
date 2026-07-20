@@ -23,7 +23,16 @@
 
 ## 配置
 
-skill 内的 README 路径是硬编码的(`./README.md`),迁移到其他仓库时需要改 `SKILL.md` 中 Step 3 的路径。
+skill 不硬编码本机绝对路径,运行时按以下优先级定位 README:
+
+1. 环境变量 `AUTO_UPDATE_README_TARGET`(指定 README 完整路径)
+2. 环境变量 `REPO_ROOT` 指定仓库根目录下的 `README.md`
+3. `git rev-parse --show-toplevel` 推断的仓库根目录下的 `README.md`
+4. 当前工作目录下的 `README.md`
+
+迁移到其他仓库不需要改代码,只需把 skill 拷过去即可。
+
+如果运行前要先做敏感信息扫描(防止把本机路径写进 README),配合 `redact-sensitive-paths` skill 使用。
 
 ## 安装
 

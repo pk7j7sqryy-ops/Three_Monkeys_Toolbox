@@ -34,7 +34,15 @@ This skill automatically detects technical questions in the conversation and arc
 First, answer the user's technical question normally in the conversation.
 
 ### Step 2: Read the Current File
-Read `./notes/面试问题集.md` to get the current state (existing questions, counters).
+Read the question file at `<repo-root>/notes/面试问题集.md` to get the current state (existing questions, counters).
+
+**Repo root location**(按优先级,从上到下取第一个匹配的):
+1. 环境变量 `INTERVIEW_QUESTION_FILE` 指定的完整文件路径
+2. 环境变量 `REPO_ROOT` 指定的仓库根目录下的 `notes/面试问题集.md`
+3. `git rev-parse --show-toplevel` 推断的仓库根目录下的 `notes/面试问题集.md`
+4. 当前工作目录下的 `notes/面试问题集.md`
+
+> ⚠️ 不要在 SKILL.md 里硬编码本机绝对路径(如 `~/your-username/...` 这种带真实用户名的),否则推送到公开仓库会泄漏用户名和内部项目结构。
 
 ### Step 3: Determine the Category
 Classify the question into one of the 9 categories listed above. If a question spans multiple categories, pick the primary one.
@@ -69,7 +77,8 @@ Write the updated file back. The automated git task (weekdays 21:20) will push i
 
 ## File Location
 
-- Question file: `./notes/面试问题集.md`
+- Question file: `<repo-root>/notes/面试问题集.md`
+- 仓库根目录运行时由 `git rev-parse --show-toplevel` 或环境变量 `REPO_ROOT` 推断,不硬编码本机绝对路径
 
 ## File Structure (Reference)
 

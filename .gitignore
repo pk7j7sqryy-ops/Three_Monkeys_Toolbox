@@ -17,6 +17,10 @@ Icon
 # Claude local state
 .claude/settings.local.json
 
+# redact-sensitive-paths 本地配置和映射表(含敏感信息)
+.redact/
+!.redact/*.example.json
+
 # Python
 __pycache__/
 *.py[cod]

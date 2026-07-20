@@ -36,9 +36,17 @@
 
 ## 输出文件
 
-`./notes/面试问题集.md`
+`<repo-root>/notes/面试问题集.md`
 
-按 9 大领域分节,文末有累计统计表。迁移到其他仓库时改 `SKILL.md` 中 Step 2 的路径即可。
+按 9 大领域分节,文末有累计统计表。
+
+仓库根定位方式(按优先级,从上到下取第一个匹配的):
+1. 环境变量 `INTERVIEW_QUESTION_FILE`(指定完整文件路径)
+2. 环境变量 `REPO_ROOT` 指定的仓库根目录下的 `notes/面试问题集.md`
+3. `git rev-parse --show-toplevel` 推断的仓库根目录下的 `notes/面试问题集.md`
+4. 当前工作目录下的 `notes/面试问题集.md`
+
+迁移到其他仓库不需要改代码,只需把 skill 拷过去即可。SKILL.md 不含本机绝对路径。
 
 ## 安装
 

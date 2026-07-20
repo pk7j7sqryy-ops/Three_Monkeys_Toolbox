@@ -37,7 +37,16 @@ description: "在 Git 提交前自动更新 README.md 的当前进度，把最�
 
 ### Step 3: 读取当前 README
 
-读取 `./README.md`，定位到「当前进度」部分。
+读取仓库根的 `README.md`,定位到「当前进度」部分。
+
+**仓库根定位方式**(按优先级,从上到下取第一个匹配的):
+1. 环境变量 `AUTO_UPDATE_README_TARGET` 指定的 README 路径
+2. 环境变量 `REPO_ROOT` 指定的仓库根目录下的 `README.md`
+3. `git rev-parse --show-toplevel` 的输出目录下的 `README.md`
+4. 当前工作目录下的 `README.md`
+
+> ⚠️ 不要在 SKILL.md 里硬编码本机绝对路径(如 `~/your-username/...` 这种带真实用户名的),否则推送到公开仓库会泄漏用户名和内部项目结构。
+> 运行时由 `git rev-parse` 或环境变量推断。
 
 ### Step 4: 更新进度条目
 
@@ -75,4 +84,4 @@ git commit -m "auto-commit: $(date '+%Y-%m-%d %H:%M')"
 
 ## 文件位置
 
-- README: `./README.md`
+- README:仓库根目录下的 `README.md`(运行时由 `git rev-parse --show-toplevel` 或环境变量 `REPO_ROOT` 推断,不硬编码)
