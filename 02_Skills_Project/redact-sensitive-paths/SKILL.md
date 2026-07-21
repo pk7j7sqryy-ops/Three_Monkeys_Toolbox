@@ -1,6 +1,7 @@
 ---
 name: "redact-sensitive-paths"
-description: "推送前脱敏扫描:扫描仓库里硬编码的本地绝对路径、用户名、邮箱、API key/token、私钥等敏感信息,自动替换为占位符,保证对外公开版本不带个人/内部信息。在 git push 之前必须调用。支持白名单和映射表审计。"
+description: "推送前脱敏扫描:扫描仓库里硬编码的本地绝对路径、用户名、邮箱、API key/token、私钥等敏感信息,自动替换为占位符,保证对外公开版本不带个人/内部信息。在 git push / 创建仓库 / 公开代码之前必须调用。支持 --staged 快速扫描、行级忽略标记、熵检测、install-hook 一键安装。"
+priority: high
 ---
 
 # Redact Sensitive Paths · 推送前脱敏
@@ -18,12 +19,18 @@ description: "推送前脱敏扫描:扫描仓库里硬编码的本地绝对路�
 - `git commit`(若担心本次提交含敏感信息)
 - 任何把仓库内容发到外部的操作
 
+**Agent 自动识别关键词**(对话中出现以下任一,自动触发扫描):
+
+- "推送"/"push"/"上传到 GitHub"/"公开代码"/"发布仓库"
+- "git init" + "push"/"创建仓库"/"gh repo create"
+- "传上去会不会泄漏"/"有没有敏感信息"/"密码"/"密钥"
+
 ## 设计原则
 
 1. **源头治理优先**:skill/工具设计时就应该用 `<repo-root>` / `~/` / 环境变量,不要硬编码本地绝对路径。本 skill 是安全网,不是替代。
 2. **不破坏功能**:脱敏只替换"对外暴露的标识符",不改动逻辑代码。占位符(`~/`、`$USER`、`<REDACTED-KEY>`)在本地加载时要么由环境变量注入,要么不影响 skill 行为。
 3. **可审计**:每次 `apply` 都生成映射表 `.redact/map.json`,记录"哪个文件哪一行被替换了什么"。映射表本身**包含敏感信息,必须 gitignore**。
-4. **白名单兜底**:设计文档里的示例 IP / 示例路径(如 `192.168.1.15`、`/home/user/soc`)默认白名单跳过,避免误报。
+4. **白名单兜底**:设计文档里的示例路径/示例 IP 默认跳过,避免误报。支持文件级 glob 和行级 `# redact-ignore` 两种方式。
 
 ## 工作流
 
@@ -36,7 +43,7 @@ python3 <skill-path>/scripts/redact.py init --repo <repo-root>
 在仓库根创建 `.redact/` 目录,生成:
 - `rules.example.json` — 自定义规则模板
 - `users.example.json` — 用户名列表模板(用户名是私有,单独存)
-- `whitelist.example.json` — 白名单模板
+- `whitelist.example.json` — 白名单模板(文件级 glob)
 - `README.md` — 配置说明
 
 并自动把以下规则追加到仓库根 `.gitignore`:
@@ -54,11 +61,26 @@ cp .redact/whitelist.example.json .redact/whitelist.json  # 按需
 
 ### Step 2: 扫描
 
+**全量扫描**(推荐首次使用):
 ```bash
 python3 <skill-path>/scripts/redact.py scan --repo <repo-root>
 ```
 
-扫描所有 git 跟踪的文本文件,输出:
+**快速扫描**(日常 push 前,只扫即将提交的变更):
+```bash
+python3 <skill-path>/scripts/redact.py scan --repo <repo-root> --staged
+```
+
+`--staged` 等价于 `git diff --cached`,只检查暂存区的变更,速度快,适合日常高频使用。
+
+**结构化输出**(agent 友好):
+```bash
+python3 <skill-path>/scripts/redact.py scan --repo <repo-root> --json
+```
+
+输出 JSON 包含 `exit_code`、`hits`(命中列表)、`next_steps`(建议操作),方便 agent 解析。
+
+**扫描结果**:
 
 | 退出码 | 含义 | 处理 |
 |---|---|---|
@@ -70,11 +92,13 @@ python3 <skill-path>/scripts/redact.py scan --repo <repo-root>
 
 对每条 REVIEW 命中,选择一种处理方式:
 
-**方式 A — 确认非隐私,加入白名单**:
-编辑 `.redact/whitelist.json`,加入文件 glob 或具体路径:
-```json
-{ "patterns": ["**/docs/design/**"] }
-```
+**方式 A — 确认非隐私,跳过**:
+
+- 文件级:编辑 `.redact/whitelist.json`,加入文件 glob
+- 行级(推荐):在对应行末尾加 `# redact-ignore`,例如:
+  ```python
+  base_path = "/Users/example/project"  # redact-ignore
+  ```
 
 **方式 B — 是真实隐私,自动替换为占位符**:
 ```bash
@@ -106,7 +130,15 @@ BLOCK 命中(API key/token/私钥)**不能简单替换占位符就完事**,因�
 git push origin <branch>
 ```
 
-### Step 6: 本地恢复(可选,不推荐)
+### Step 6: 一键安装 pre-commit hook
+
+```bash
+python3 <skill-path>/scripts/redact.py install-hook --repo <repo-root>
+```
+
+安装后每次 `git commit` 自动运行 `redact.py scan --staged`,检出问题则阻止提交。注意:这会增加每次 commit 的延迟,建议只在敏感项目启用。
+
+### Step 7: 本地恢复(可选,不推荐)
 
 如果 `apply` 影响了本地 skill 工作(比如 SKILL.md 里的真值路径被换成了占位符),推荐用 git 恢复:
 ```bash
@@ -131,13 +163,22 @@ git checkout HEAD -- <file>
 
 | ID | 模式 | 替换为 |
 |---|---|---|
-| API-KEY-OPENAI | `sk-<32+ chars>` | `<REDACTED-OPENAI-KEY>` |
+| API-KEY-OPENAI | `sk-proj-/sk-svcacct-/sk-admin-/sk-<32+ chars>` | `<REDACTED-OPENAI-KEY>` |
+| API-KEY-ANTHROPIC | `sk-ant-<32+ chars>` | `<REDACTED-ANTHROPIC-KEY>` |
 | API-KEY-GITHUB | `ghp_/gho_/ghu_/ghs_/ghr_<36+ chars>` | `<REDACTED-GITHUB-TOKEN>` |
 | API-KEY-AWS | `AKIA<16 chars>` | `<REDACTED-AWS-KEY>` |
+| API-KEY-STRIPE | `sk_live_/sk_test_<24+ chars>` | `<REDACTED-STRIPE-KEY>` |
+| API-KEY-SLACK | `xoxb-/xoxp-/xoxa-<32+ chars>` | `<REDACTED-SLACK-TOKEN>` |
+| API-KEY-HF | `hf_<34 chars>` | `<REDACTED-HF-TOKEN>` |
+| API-KEY-GOOGLE | `AIza<35 chars>` | `<REDACTED-GOOGLE-KEY>` |
+| API-KEY-NPM | `npm_<36 chars>` | `<REDACTED-NPM-TOKEN>` |
 | PRIVATE-KEY-PEM | `-----BEGIN ... PRIVATE KEY-----` | `<REDACTED-PRIVATE-KEY>` |
-| JWT-TOKEN | `eyJxxx.yyy.zzz` | `<REDACTED-JWT>` |
+| JWT-TOKEN | `eyJ<base64>.<base64>.<base64>` | `<REDACTED-JWT>` |
+| ENTROPY-HIGH | 高熵字符串(Shannon entropy > 4.5) | `<REDACTED-HIGH-ENTROPY>` |
 
-查看完整规则:`python3 scripts/redact.py rules`
+**熵检测(ENTROPY-HIGH)**:扫描器会计算每个长字符串的 Shannon 熵值。熵 > 4.5 的字符串(如随机生成的 token/secret)会被标记为 BLOCK,即使没有已知前缀。这能兜底抓取未知类型的 API key。但注意:minified JS/CSS 也高熵,需配合白名单避免误报。
+
+查看完整规则:`python3 <skill-path>/scripts/redact.py rules`
 
 ## 默认白名单
 
@@ -146,16 +187,17 @@ git checkout HEAD -- <file>
 - `**/docs/design/**`、`**/docs/reference/**`、`**/docs/testing/**`、`**/docs/requirements/**`
 - `**/.git/**`、`**/node_modules/**`
 - `**/mermaid.min.js`(minified 大文件)
-- `**/*.zip`、`**/*.jpg`、`**/*.png`、`**/*.gif`、`**/*.pdf`
+- `**/*.zip`、`**/*.jpg`、`**/*.png`、`**/*.gif`、`**/*.pdf`、`**/*.min.js`、`**/*.min.css`
 - `**/.redact/**`
 
 ## 注意事项
 
 1. **映射表是敏感文件**:`.redact/map.json` 包含原始路径/密钥,必须 gitignore
-2. **白名单要精准**:不要把整个文件加白名单,只加具体 glob
+2. **行级忽略优先**:`# redact-ignore` 比文件级白名单更精准,推荐优先使用
 3. **二进制文件跳过**:只扫描文本文件(扩展名白名单 + NUL byte 检测)
-4. **大文件性能**:`mermaid.min.js` 2.5MB 这种 minified 文件,扫描慢,默认白名单
-5. **commit hook 集成(可选)**:可以把 `redact.py scan` 加到 `.git/hooks/pre-commit`,但要注意性能(每次提交扫描全仓库)
+4. **大文件性能**:minified 文件(>500KB)扫描慢,默认白名单
+5. **日常用 `--staged`**:全量扫描慢,日常 push 前用 `--staged` 只扫变更
+6. **熵检测有误报**:minified JS/CSS/Base64 编码数据也高熵,需要白名单配合
 
 ## 已知遗留(用户需了解)
 
@@ -170,12 +212,10 @@ git checkout HEAD -- <file>
 
 ## 后续 Roadmap(未实现)
 
-- [ ] **行号级白名单**:目前白名单只能按文件 glob,无法指定"第 N 行跳过"
-- [ ] **正则白名单**:用上下文模式而非整文件跳过(如"行首是 `# 示例:` 的行")
-- [ ] **git pre-commit hook 集成**:`redact.py install-hook` 自动安装
 - [ ] **CI 集成**:GitHub Actions workflow,PR 时自动扫描
 - [ ] **跨仓库历史扫描**:`redact.py history` 扫描 git log -p 全历史
 - [ ] **隐写检测**:对接 `aiagent-covert-channel-scan` 检测零宽字符/全角字符里藏的路径
+- [ ] **`--staged` 白名单密度统计**:标记"单个文件超过 N 行 `# redact-ignore`"为可疑
 
 ## 安装
 

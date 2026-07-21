@@ -16,7 +16,8 @@ Three_Monkeys_Toolbox/
 │   ├── auto-update-readme/    # Git 提交前自动更新 README 进度
 │   ├── interview-question-tracker/ # 对话中技术问题自动归档成 FAQ 面试题集
 │   ├── ai-news-digest/        # 每日 AI 行业情报速览生成器(WebSearch + 6 分区)
-│   └── redact-sensitive-paths/ # 推送前脱敏扫描(本机路径/密钥/token)
+│   ├── redact-sensitive-paths/ # 推送前脱敏扫描(本机路径/密钥/token)
+│   └── daily-study-digest/  # 每日学习笔记 MD 整理器(4 种目录结构 + Mermaid 知识图谱)
 │
 ├── 03_Security_Project/       # 安全方向项目
 │   ├── 3Monkeys Sentinel/    # AI 网络安全 Agent(双层检测 + Agent 推理循环)
@@ -35,6 +36,7 @@ Three_Monkeys_Toolbox/
 | [interview-question-tracker](./02_Skills_Project/interview-question-tracker) | TRAE Skill | 技术问题自动归档为 9 大领域 FAQ 面试题集 | 可用 |
 | [ai-news-digest](./02_Skills_Project/ai-news-digest) | TRAE Skill | 每日 AI 行业情报速览生成器(6 分区 + 关联学习路线) | 可用 |
 | [redact-sensitive-paths](./02_Skills_Project/redact-sensitive-paths) | TRAE Skill | 推送前脱敏扫描(本机路径/密钥/token 自动替换为占位符) | 可用 |
+| [daily-study-digest](./02_Skills_Project/daily-study-digest) | TRAE Skill | 每日学习笔记 MD 整理器(4 种目录自动识别 + Mermaid 知识图谱 + API 速查表) | 可用 |
 | [3Monkeys Sentinel](./03_Security_Project/3Monkeys%20Sentinel) | 安全 Agent | AI 自主网络安全检测与响应 Agent(LangGraph + 记忆 + 微调) | 设计阶段 |
 | [aiagent-covert-channel-scan](./03_Security_Project/aiagent-covert-channel-scan) | 安全 Skill | 扫描 AI Agent 客户端(Claude Code / Cursor / Cline)隐蔽信道 | 可用 |
 
