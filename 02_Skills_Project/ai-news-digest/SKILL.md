@@ -168,7 +168,9 @@ git push
 
 ## 定时任务配置(可选)
 
-如需每日 12:00 自动运行,用 TRAE 的 Schedule 工具:
+如需每日 12:00 自动运行:
+
+**TRAE**(用 Schedule 工具):
 
 ```
 action: create
@@ -187,6 +189,19 @@ name: "ai-news-digest-daily"
 
 ## 安装
 
+**一键安装到所有检测到的 agent**:
+
 ```bash
-cp -r ai-news-digest ~/.trae-cn/skills/
+# 在 02_Skills_Project/ 下
+./install.sh ai-news-digest
 ```
+
+**手动安装**(TRAE / Claude Code / Codex 通用 SKILL.md 格式):
+
+```bash
+cp -r ai-news-digest ~/.trae-cn/skills/      # TRAE
+cp -r ai-news-digest ~/.claude/skills/       # Claude Code
+cp -r ai-news-digest ~/.codex/skills/         # Codex
+```
+
+Cursor / Cline 需要格式转换,用 `install.sh` 自动处理。

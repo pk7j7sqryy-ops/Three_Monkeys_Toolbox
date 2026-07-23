@@ -7,7 +7,7 @@
 | 项目 | 定位 | 状态 |
 |---|---|---|
 | [3Monkeys Sentinel](./3Monkeys%20Sentinel) | AI 驱动的自主网络安全检测与响应 Agent(双层检测 + Agent 推理循环 + 记忆系统) | 设计阶段,文档完备 |
-| [aiagent-covert-channel-scan](./aiagent-covert-channel-scan) | AI Agent 客户端隐蔽信道审计 Skill(TRAE skill + Python 扫描器) | 可用,纯静态扫描 |
+| [aiagent-covert-channel-scan](./aiagent-covert-channel-scan) | AI Agent 客户端隐蔽信道审计 Skill(通用 Agent Skill + Python 扫描器,兼容 TRAE/Claude Code/Codex/Cursor/Cline) | 可用,纯静态扫描 |
 
 ## 设计呼应
 

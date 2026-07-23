@@ -219,11 +219,24 @@ git checkout HEAD -- <file>
 
 ## 安装
 
+**一键安装到所有检测到的 agent**:
+
 ```bash
-cp -r redact-sensitive-paths ~/.trae-cn/skills/
+# 在 02_Skills_Project/ 下
+./install.sh redact-sensitive-paths
 ```
 
-也可直接命令行使用,不需要 TRAE 加载:
+**手动安装**(TRAE / Claude Code / Codex 通用 SKILL.md 格式):
+
+```bash
+cp -r redact-sensitive-paths ~/.trae-cn/skills/      # TRAE
+cp -r redact-sensitive-paths ~/.claude/skills/       # Claude Code
+cp -r redact-sensitive-paths ~/.codex/skills/         # Codex
+```
+
+Cursor / Cline 需要格式转换,用 `install.sh` 自动处理。
+
+也可直接命令行使用,不需要任何 agent 加载:
 ```bash
 python3 redact-sensitive-paths/scripts/redact.py scan --repo /path/to/any/repo
 ```

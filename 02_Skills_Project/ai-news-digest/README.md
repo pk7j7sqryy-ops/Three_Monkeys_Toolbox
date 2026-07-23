@@ -1,13 +1,13 @@
 # ai-news-digest
 
-> TRAE 自定义 Skill:每日 AI 行业情报速览生成器。
+> 通用 Agent Skill(兼容 TRAE / Claude Code / Codex / Cursor / Cline):每日 AI 行业情报速览生成器。
 > 用 WebSearch 搜索当日动态,按 6 大分区整理成结构化 Markdown,每条情报关联到 24 周学习路线。
 
 完整定义见 [SKILL.md](./SKILL.md)。
 
 ## 触发时机
 
-- **定时**:工作日 12:00(用 TRAE Schedule 配置)
+- **定时**:工作日 12:00(在 TRAE 里用 Schedule 工具配置;Claude Code/Codex 用系统 cron / launchd / 任务计划)
 - **主动**:用户说"今天 AI 有什么新消息"、"跑一下 ai-news-digest"
 - **关键词**:用户提到"AI 新闻"、"AI 情报"、"行业动态"、"GitHub trending"
 
@@ -59,15 +59,24 @@
 来源:https://blog.51cto.com/u_17605021/14433944
 ```
 
-## 定时任务(可选)
+## 定时任务(可选,跨 agent)
 
-用 TRAE 的 Schedule 工具配置每日 12:00 自动运行:
+**TRAE**(用 Schedule 工具):
 
 ```
 action: create
 cron_expression: "0 12 * * 1-6"   # 周一到周六 12:00
 timezone: "Asia/Shanghai"
 name: "ai-news-digest-daily"
+```
+
+**Claude Code / Codex / 其他 agent**(用系统 crontab):
+
+```bash
+# 编辑 crontab
+crontab -e
+# 加入(每天 12:00 工作日运行,命令需要根据实际 agent CLI 改写)
+0 12 * * 1-6 cd <repo-root> && claude -p "运行 ai-news-digest skill,生成今日 AI 情报速览" >> /tmp/ai-news.log 2>&1
 ```
 
 ## 已知遗留
@@ -82,6 +91,22 @@ name: "ai-news-digest-daily"
 
 ## 安装
 
+**一键安装到所有检测到的 agent**(推荐):
+
 ```bash
-cp -r ai-news-digest ~/.trae-cn/skills/
+../install.sh ai-news-digest
 ```
+
+**手动安装到指定 agent**:
+
+```bash
+# TRAE / Claude Code / Codex(SKILL.md 格式通用,直接拷贝)
+cp -r ai-news-digest ~/.trae-cn/skills/      # TRAE
+cp -r ai-news-digest ~/.claude/skills/       # Claude Code
+cp -r ai-news-digest ~/.codex/skills/         # Codex
+
+# Cursor / Cline(需要格式转换,用 install.sh 自动处理)
+../install.sh ai-news-digest
+```
+
+跨 agent 兼容性说明见 [../INSTALL.md](../INSTALL.md)。

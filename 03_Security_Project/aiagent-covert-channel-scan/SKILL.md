@@ -47,7 +47,13 @@ Cursor / Cline 等:在各自应用包或 `~/.config/` / `~/Library/Application S
 ### 步骤 2:跑扫描脚本(零依赖,仅 Python 标准库)
 
 ```bash
-python3 ~/.trae-cn/skills/aiagent-covert-channel-scan/scripts/scan.py <PATH>
+python3 <skill-dir>/scripts/scan.py <PATH>
+
+# <skill-dir> 取决于安装位置:
+#   TRAE:        ~/.trae-cn/skills/aiagent-covert-channel-scan
+#   Claude Code: ~/.claude/skills/aiagent-covert-channel-scan
+#   Codex:       ~/.codex/skills/aiagent-covert-channel-scan
+#   仓库源:      <repo-root>/03_Security_Project/aiagent-covert-channel-scan
 ```
 
 支持:

@@ -1,6 +1,6 @@
 # interview-question-tracker
 
-> TRAE 自定义 Skill:把对话中的技术问题归档成结构化面试题集(FAQ 格式)。
+> 通用 Agent Skill(兼容 TRAE / Claude Code / Codex / Cursor / Cline):把对话中的技术问题归档成结构化面试题集(FAQ 格式)。
 
 完整定义见 [SKILL.md](./SKILL.md)。
 
@@ -50,6 +50,22 @@
 
 ## 安装
 
+**一键安装到所有检测到的 agent**(推荐):
+
 ```bash
-cp -r interview-question-tracker ~/.trae-cn/skills/
+../install.sh interview-question-tracker
 ```
+
+**手动安装到指定 agent**:
+
+```bash
+# TRAE / Claude Code / Codex(SKILL.md 格式通用,直接拷贝)
+cp -r interview-question-tracker ~/.trae-cn/skills/      # TRAE
+cp -r interview-question-tracker ~/.claude/skills/       # Claude Code
+cp -r interview-question-tracker ~/.codex/skills/         # Codex
+
+# Cursor / Cline(需要格式转换,用 install.sh 自动处理)
+../install.sh interview-question-tracker
+```
+
+跨 agent 兼容性说明见 [../INSTALL.md](../INSTALL.md)。

@@ -1,6 +1,6 @@
 # redact-sensitive-paths
 
-> TRAE 自定义 Skill + Python 脚本:推送前脱敏扫描,把仓库里硬编码的本地绝对路径、用户名、邮箱、API key/token、私钥等敏感信息替换为占位符。
+> 通用 Agent Skill(兼容 TRAE / Claude Code / Codex / Cursor / Cline)+ Python 脚本:推送前脱敏扫描,把仓库里硬编码的本地绝对路径、用户名、邮箱、API key/token、私钥等敏感信息替换为占位符。
 
 完整定义见 [SKILL.md](./SKILL.md)。脚本零依赖,只用 Python 标准库。
 
@@ -52,7 +52,7 @@ python3 scripts/redact.py rules
 
 ```
 redact-sensitive-paths/
-├── SKILL.md                    # skill 定义(TRAE 加载)
+├── SKILL.md                    # skill 定义(通用 frontmatter,所有 agent 加载)
 ├── README.md                   # 本文档
 └── scripts/
     └── redact.py                # 零依赖扫描器(scan/apply/restore/rules/init)
@@ -88,11 +88,27 @@ redact-sensitive-paths/
 
 ## 安装
 
+**一键安装到所有检测到的 agent**(推荐):
+
 ```bash
-cp -r redact-sensitive-paths ~/.trae-cn/skills/
+../install.sh redact-sensitive-paths
 ```
 
-也可脱离 TRAE 直接命令行用:
+**手动安装到指定 agent**:
+
+```bash
+# TRAE / Claude Code / Codex(SKILL.md 格式通用,直接拷贝)
+cp -r redact-sensitive-paths ~/.trae-cn/skills/      # TRAE
+cp -r redact-sensitive-paths ~/.claude/skills/       # Claude Code
+cp -r redact-sensitive-paths ~/.codex/skills/         # Codex
+
+# Cursor / Cline(需要格式转换,用 install.sh 自动处理)
+../install.sh redact-sensitive-paths
+```
+
+跨 agent 兼容性说明见 [../INSTALL.md](../INSTALL.md)。
+
+也可脱离任何 agent 直接命令行用:
 ```bash
 python3 redact-sensitive-paths/scripts/redact.py scan --repo /any/repo
 ```

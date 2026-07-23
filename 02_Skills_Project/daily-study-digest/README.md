@@ -54,15 +54,25 @@
 
 ## 安装
 
-把 `daily-study-digest/` 目录复制到 TRAE skill 目录:
+**一键安装到所有检测到的 agent**(推荐):
 
 ```bash
-# macOS
-cp -r daily-study-digest ~/.trae-cn/skills/
-
-# 或复制整个 skills project
-cp -r 02_Skills_Project ~/.trae-cn/skills/
+../install.sh daily-study-digest
 ```
+
+**手动安装到指定 agent**:
+
+```bash
+# TRAE / Claude Code / Codex(SKILL.md 格式通用,直接拷贝)
+cp -r daily-study-digest ~/.trae-cn/skills/      # TRAE
+cp -r daily-study-digest ~/.claude/skills/       # Claude Code
+cp -r daily-study-digest ~/.codex/skills/         # Codex
+
+# Cursor / Cline(需要格式转换,用 install.sh 自动处理)
+../install.sh daily-study-digest
+```
+
+跨 agent 兼容性说明见 [../INSTALL.md](../INSTALL.md)。
 
 ## 配套 Skills
 

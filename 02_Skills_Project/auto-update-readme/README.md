@@ -1,6 +1,6 @@
 # auto-update-readme
 
-> TRAE 自定义 Skill:在 Git 提交前自动更新 README 的「当前进度」段。
+> 通用 Agent Skill(兼容 TRAE / Claude Code / Codex / Cursor / Cline):在 Git 提交前自动更新 README 的「当前进度」段。
 
 完整定义见 [SKILL.md](./SKILL.md)。本目录只放 skill 本身,不包含其他代码。
 
@@ -36,6 +36,22 @@ skill 不硬编码本机绝对路径,运行时按以下优先级定位 README:
 
 ## 安装
 
+**一键安装到所有检测到的 agent**(推荐):
+
 ```bash
-cp -r auto-update-readme ~/.trae-cn/skills/
+../install.sh auto-update-readme
 ```
+
+**手动安装到指定 agent**:
+
+```bash
+# TRAE / Claude Code / Codex(SKILL.md 格式通用,直接拷贝)
+cp -r auto-update-readme ~/.trae-cn/skills/      # TRAE
+cp -r auto-update-readme ~/.claude/skills/       # Claude Code
+cp -r auto-update-readme ~/.codex/skills/         # Codex
+
+# Cursor / Cline(需要格式转换,用 install.sh 自动处理)
+../install.sh auto-update-readme
+```
+
+跨 agent 兼容性说明见 [../INSTALL.md](../INSTALL.md)。

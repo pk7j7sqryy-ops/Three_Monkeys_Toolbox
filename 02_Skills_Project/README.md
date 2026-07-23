@@ -1,11 +1,24 @@
-# Skills Project · TRAE 自定义 Skill 集合
+# Skills Project · 通用 Agent Skill 集合
 
-面向 TRAE IDE 的自定义 skill 集合,用于把日常高频工作流(README 维护、面试问题归档等)封装成 AI 可调用的能力。
+不绑定特定 AI 编程客户端的通用 skill 集合,基于事实标准格式 `SKILL.md`(YAML frontmatter + Markdown 正文)编写,
+可装到主流 agent:TRAE / Claude Code / Codex / Cursor / Cline / Roo Code。
 
-每个 skill 是一个目录,核心文件是 `SKILL.md`(YAML frontmatter + Markdown 工作流说明)。把目录拷贝到 TRAE skill 目录即可启用:
+每个 skill 是一个目录,核心文件是 `SKILL.md`(`name` + `description` frontmatter + Markdown 工作流)。
 
-- macOS: `~/.trae-cn/skills/` 或 `~/.trae/skills/`
-- Windows: `%USERPROFILE%\.trae-cn\skills\`
+## 一键安装(推荐)
+
+```bash
+# 自动检测本机已装的 agent,装到所有检测到的路径
+./install.sh
+
+# 或只装某一个 skill
+./install.sh interview-question-tracker
+
+# 查看 agent 检测结果
+./install.sh --detect
+```
+
+详细兼容性说明见 [INSTALL.md](./INSTALL.md)。
 
 ## 已收录 Skills
 
@@ -20,7 +33,8 @@
 ## 编写规范
 
 - 一个 skill 一个目录,目录名 = skill 名(kebab-case)
-- 目录内必须有 `SKILL.md`,带 YAML frontmatter:`name` 和 `description`
+- 目录内必须有 `SKILL.md`,带 YAML frontmatter:`name` 和 `description`(TRAE/Claude Code/Codex 都支持的最小集)
+- **不绑定特定 agent** — frontmatter 不要写 `priority` / `metadata` 等 agent 专有字段;触发条件用关键词,不用 agent 专有事件;涉及定时/MCP/可视化要在文档里给非 TRAE 的 fallback
 - 工作流用 Step 列表写清楚,文件路径用 `<repo-root>/...` 占位符,**不硬编码本机绝对路径**(如 `~/...` 这种带真实用户名的),运行时由 `git rev-parse --show-toplevel` 或环境变量 `REPO_ROOT` 推断
 - 触发时机要明确(在哪些命令前/在什么样的话语下),避免误触发
 - 如果有副作用(改文件),必须写明保存位置和回滚方式

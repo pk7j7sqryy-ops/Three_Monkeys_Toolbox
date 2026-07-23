@@ -1,6 +1,6 @@
 # aiagent-covert-channel-scan
 
-AI Agent 客户端隐蔽信道审计 Skill,适用于 TRAE IDE。
+AI Agent 客户端隐蔽信道审计 Skill —— 通用 Agent Skill(兼容 TRAE / Claude Code / Codex / Cursor / Cline)。
 
 ## 这是什么
 
@@ -10,27 +10,34 @@ AI Agent 客户端隐蔽信道审计 Skill,适用于 TRAE IDE。
 
 ## 安装
 
-### 方式 1:一键脚本(macOS / Linux)
+### 方式 1:一键脚本(macOS / Linux,推荐)
 
 ```bash
 bash install.sh
 ```
 
-脚本会自动检测 TRAE skill 目录(`~/.trae-cn/skills/` 或 `~/.trae/skills/`)并安装。
+脚本会自动检测本机所有 agent 客户端(TRAE / Claude Code / Codex / Cursor / Cline)并安装到对应路径。
+也可用上层 [02_Skills_Project/install.sh](../../02_Skills_Project/install.sh) 统一安装所有 skill。
 
 ### 方式 2:手动安装
 
 ```bash
-# macOS / Linux
-cp -r aiagent-covert-channel-scan ~/.trae-cn/skills/
+# macOS / Linux(TRAE / Claude Code / Codex 通用 SKILL.md 格式)
+cp -r aiagent-covert-channel-scan ~/.trae-cn/skills/      # TRAE
+cp -r aiagent-covert-channel-scan ~/.claude/skills/        # Claude Code
+cp -r aiagent-covert-channel-scan ~/.codex/skills/         # Codex
 
 # Windows (PowerShell)
 Copy-Item -Recurse aiagent-covert-channel-scan $env:USERPROFILE\.trae-cn\skills\
+Copy-Item -Recurse aiagent-covert-channel-scan $env:USERPROFILE\.claude\skills\
+Copy-Item -Recurse aiagent-covert-channel-scan $env:USERPROFILE\.codex\skills\
 ```
+
+跨 agent 兼容性说明见 [../../02_Skills_Project/INSTALL.md](../../02_Skills_Project/INSTALL.md)。
 
 ## 使用
 
-安装后,在 TRAE IDE 里对 AI 说:
+安装后,在任意 AI 编程客户端(TRAE / Claude Code / Codex / Cursor / Cline)里对 AI 说:
 
 - "扫描下 Claude Code 会不会泄漏隐私"
 - "审计一下我本地的 AI Agent 客户端"
