@@ -1,0 +1,4 @@
+interface:
+  display_name: "每日学习复盘"
+  short_description: "完整审读代码、脑图文字与图片，生成每日复盘和总结图"
+  default_prompt: "Use $daily-study-digest to audit the day's notes, code, and mind-map images, then create a scoped daily review and visual summary."

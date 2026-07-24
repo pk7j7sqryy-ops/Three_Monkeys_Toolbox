@@ -9,7 +9,8 @@
 #   ./install.sh <skill-name>      # 只安装指定 skill
 #   ./install.sh --list            # 列出可用 skill
 #   ./install.sh --detect          # 只检测本机 agent,不安装
-#   ./install.sh --target ~/.codex/skills  # 指定目标路径,跳过自动检测
+#   ./install.sh --target ~/.trae-cn/skills                  # 把所有 skill 安装到指定路径
+#   ./install.sh --target ~/.trae-cn/skills daily-study-digest # 只安装指定 skill 到指定路径
 #
 # 兼容性说明:
 #   - TRAE / Claude Code / Codex:SKILL.md 格式完全通用,直接拷贝即可
@@ -66,7 +67,7 @@ detect_agents() {
     fi
   done
   [ $found -eq 0 ] && warn "未检测到任何已知的 agent 客户端"
-  return $found
+  return 0
 }
 
 # 拷贝到 TRAE/Claude Code/Codex 格式的目录(通用 SKILL.md)
@@ -96,6 +97,11 @@ install_to_cursor() {
   [ -f "$skill_md" ] || return 0
   mkdir -p "$target_dir"
 
+  local resource_dir="$target_dir/$skill_name"
+  rm -rf "$resource_dir"
+  cp -r "$skill_src" "$resource_dir"
+  rm -rf "$resource_dir/.git" 2>/dev/null || true
+
   # 生成 .mdc 文件:转换 frontmatter
   local mdc_file="$target_dir/$skill_name.mdc"
   local desc=$(awk '/^description:/{sub(/^description: */,""); gsub(/^"|"$/,""); print; exit}' "$skill_md")
@@ -107,8 +113,11 @@ install_to_cursor() {
     echo "alwaysApply: false"
     echo "---"
     echo ""
+    echo "Skill resource root: \`$resource_dir\`"
+    echo ""
     # 跳过原始 frontmatter,从第一个非 frontmatter 段开始
-    awk 'BEGIN{infm=0; printed=0} /^---$/{if(infm==0){infm=1;next}else{infm=0;next}} {if(infm==0)print}' "$skill_md"
+    awk 'BEGIN{infm=0; printed=0} /^---$/{if(infm==0){infm=1;next}else{infm=0;next}} {if(infm==0)print}' "$skill_md" \
+      | sed "s#assets/#$resource_dir/assets/#g; s#references/#$resource_dir/references/#g; s#scripts/#$resource_dir/scripts/#g"
   } > "$mdc_file"
 
   log "$skill_name → $target_dir/$skill_name.mdc ${D}(Cursor 转换)${N}"
@@ -124,9 +133,19 @@ install_to_cline() {
   [ -f "$skill_md" ] || return 0
   mkdir -p "$target_dir"
 
+  local resource_dir="$target_dir/$skill_name"
+  rm -rf "$resource_dir"
+  cp -r "$skill_src" "$resource_dir"
+  rm -rf "$resource_dir/.git" 2>/dev/null || true
+
   local rule_file="$target_dir/$skill_name.md"
   # 去掉 frontmatter,只留正文
-  awk 'BEGIN{infm=0} /^---$/{if(infm==0){infm=1;next}else{infm=0;next}} {if(infm==0)print}' "$skill_md" > "$rule_file"
+  {
+    echo "Skill resource root: \`$resource_dir\`"
+    echo ""
+    awk 'BEGIN{infm=0} /^---$/{if(infm==0){infm=1;next}else{infm=0;next}} {if(infm==0)print}' "$skill_md" \
+      | sed "s#assets/#$resource_dir/assets/#g; s#references/#$resource_dir/references/#g; s#scripts/#$resource_dir/scripts/#g"
+  } > "$rule_file"
   log "$skill_name → $target_dir/$skill_name.md ${D}(Cline 转换)${N}"
 }
 
@@ -195,12 +214,16 @@ case "${1:-}" in
     ;;
   --target|-t)
     [ -z "${2:-}" ] && { err "缺少 target 路径"; exit 1; }
-    for d in "$SKILLS_ROOT"/*/; do
-      name="$(basename "$d")"
-      [[ " ${SKIP_DIRS[*]} " == *" $name "* ]] && continue
-      [ -f "$d/SKILL.md" ] || continue
-      install_to_generic "$name" "$2"
-    done
+    if [ -n "${3:-}" ]; then
+      install_to_generic "$3" "$2"
+    else
+      for d in "$SKILLS_ROOT"/*/; do
+        name="$(basename "$d")"
+        [[ " ${SKIP_DIRS[*]} " == *" $name "* ]] && continue
+        [ -f "$d/SKILL.md" ] || continue
+        install_to_generic "$name" "$2"
+      done
+    fi
     ;;
   --help|-h)
     sed -n '2,20p' "$0" | sed 's/^# \?//'

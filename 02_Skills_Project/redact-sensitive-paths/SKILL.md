@@ -1,7 +1,8 @@
 ---
-name: "redact-sensitive-paths"
-description: "推送前脱敏扫描:扫描仓库里硬编码的本地绝对路径、用户名、邮箱、API key/token、私钥等敏感信息,自动替换为占位符,保证对外公开版本不带个人/内部信息。在 git push / 创建仓库 / 公开代码之前必须调用。支持 --staged 快速扫描、行级忽略标记、熵检测、install-hook 一键安装。"
+name: redact-sensitive-paths
+description: 推送前脱敏扫描:扫描仓库里硬编码的本地绝对路径、用户名、邮箱、API key/token、私钥等敏感信息,自动替换为占位符,保证对外公开版本不带个人/内部信息。在 git push / 创建仓库 / 公开代码之前必须调用。支持 --staged 快速扫描、行级忽略标记、熵检测、install-hook 一键安装。
 priority: high
+tags:
 ---
 
 # Redact Sensitive Paths · 推送前脱敏

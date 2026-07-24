@@ -8,11 +8,11 @@
 
 类似下面的"内部路径"一旦推到公开仓库,会泄漏:
 
-- 用户名(`./...`、`./...`)
-- 内部项目结构(`./...`)
-- 个人邮箱(`821815778@qq.com`)
+- 用户名(macOS/Linux 主目录中的真实账户名)
+- 内部项目结构(`<repo-root>/internal-project/...`)
+- 个人邮箱(`$EMAIL`)
 - API key/token(`sk-...`、`ghp_...`、`AKIA...`)
-- PEM 私钥(`-----BEGIN RSA PRIVATE KEY-----`)
+- PEM 私钥(完整的 `BEGIN … PRIVATE KEY` 文本块)
 - JWT token(`eyJxxx.yyy.zzz`)
 
 本 skill 在 `git push` 之前扫描,支持自动替换为占位符 + 映射表审计。
