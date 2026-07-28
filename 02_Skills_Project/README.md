@@ -29,6 +29,7 @@
 | [ai-news-digest](./ai-news-digest) | 工作日 12:00 定时 / 主动调用 / 关键词触发 | 用 WebSearch 搜当日 AI 行业动态,按 6 大分区整理成 `Ai_News/AI情报速览_YYYY-MM-DD.md`,每条情报关联到 24 周学习路线 |
 | [redact-sensitive-paths](./redact-sensitive-paths) | `git push` 之前 | 扫描仓库里硬编码的本机绝对路径、用户名、邮箱、API key/token、私钥等敏感信息,自动替换为占位符,带规则/白名单/映射表 |
 | [daily-study-digest](./daily-study-digest) | 上传学习 zip / "总结 day_XX" / 指定路径 | 自动识别 4 种目录结构(NumPy/Pandas、Python、Linux/FastAPI、MySQL),把每日 .py 和 .md 整理成「⭐ 核心概念 / 🔧 常用 API / 💡 进阶实战」三层 MD,带 Mermaid 知识图谱和 API 速查表 |
+| [convert-files-to-markdown](./convert-files-to-markdown) | 转换 PDF/Word/MMAP/Python/Notebook 或混合资料目录时 | 忠实转换为 UTF-8 通用 Markdown；保留文档层级、表格、代码、媒体和 MindManager 原始节点顺序及编号 |
 
 ## 编写规范
 

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Files to Markdown"
+  short_description: "Convert documents and source files to Markdown"
+  default_prompt: "Use $convert-files-to-markdown to faithfully convert these files into portable Markdown."

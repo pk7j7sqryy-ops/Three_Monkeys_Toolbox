@@ -19,7 +19,8 @@ Three_Monkeys_Toolbox/
 │   ├── interview-question-tracker/ # 对话中技术问题自动归档成 FAQ 面试题集
 │   ├── ai-news-digest/        # 每日 AI 行业情报速览生成器(WebSearch + 6 分区)
 │   ├── redact-sensitive-paths/ # 推送前脱敏扫描(本机路径/密钥/token)
-│   └── daily-study-digest/  # 主动复盘笔记(哈希增量 + 脑图审读 + AI 总结图)
+│   ├── daily-study-digest/     # 主动复盘笔记(哈希增量 + 脑图审读 + AI 总结图)
+│   └── convert-files-to-markdown/ # PDF/Word/MMAP/Python 转通用 Markdown
 │
 ├── 03_Security_Project/       # 安全方向项目
 │   ├── 3Monkeys Sentinel/    # AI 网络安全 Agent(双层检测 + Agent 推理循环)
@@ -39,6 +40,7 @@ Three_Monkeys_Toolbox/
 | [ai-news-digest](./02_Skills_Project/ai-news-digest) | 通用 Agent Skill | 每日 AI 行业情报速览生成器(6 分区 + 关联学习路线) | 可用 |
 | [redact-sensitive-paths](./02_Skills_Project/redact-sensitive-paths) | 通用 Agent Skill | 推送前脱敏扫描(本机路径/密钥/token 自动替换为占位符) | 可用 |
 | [daily-study-digest](./02_Skills_Project/daily-study-digest) | 通用 Agent Skill | 主动复盘笔记 v4(哈希增量 + MindManager 审读 + AI 总结图) | 可用 |
+| [convert-files-to-markdown](./02_Skills_Project/convert-files-to-markdown) | 通用 Agent Skill | PDF、Word、MindManager、Python、Notebook 忠实转换为通用 Markdown | 可用 |
 | [3Monkeys Sentinel](./03_Security_Project/3Monkeys%20Sentinel) | 安全 Agent | AI 自主网络安全检测与响应 Agent(LangGraph + 记忆 + 微调) | 设计阶段 |
 | [aiagent-covert-channel-scan](./03_Security_Project/aiagent-covert-channel-scan) | 安全 Skill | 扫描 AI Agent 客户端(Claude Code / Cursor / Cline)隐蔽信道 | 可用 |
 
@@ -49,6 +51,7 @@ Three_Monkeys_Toolbox/
 - 已支持 MindManager 大纲与图片审读
 - 已增加 digest 结构与用户区块校验
 - 跨 Agent 安装器已支持 Skill 资源目录
+- convert-files-to-markdown 已支持多格式忠实转换
 
 ## 三不猴设计理念
 
