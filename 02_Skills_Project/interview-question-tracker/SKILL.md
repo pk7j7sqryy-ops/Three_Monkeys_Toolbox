@@ -5,7 +5,7 @@ description: "Archives technical questions from conversation into a categorized 
 
 # Interview Question Tracker
 
-This skill automatically detects technical questions in the conversation and archives them into a structured FAQ-style interview prep file (`notes/面试问题集.md`), categorized by domain.
+This skill automatically detects technical questions in the conversation and archives them into a configured FAQ-style interview prep file, categorized by domain.
 
 ## When to Invoke
 
@@ -33,14 +33,17 @@ This skill automatically detects technical questions in the conversation and arc
 ### Step 1: Answer the Question
 First, answer the user's technical question normally in the conversation.
 
-### Step 2: Read the Current File
-Read the question file at `<repo-root>/notes/面试问题集.md` to get the current state (existing questions, counters).
+### Step 2: Resolve and Read the Current File
+Resolve the canonical question file, then read its current questions and counters before editing.
 
-**Repo root location**(按优先级,从上到下取第一个匹配的):
+**Question file resolution**(按优先级,从上到下取第一个匹配的):
 1. 环境变量 `INTERVIEW_QUESTION_FILE` 指定的完整文件路径
-2. 环境变量 `REPO_ROOT` 指定的仓库根目录下的 `notes/面试问题集.md`
-3. `git rev-parse --show-toplevel` 推断的仓库根目录下的 `notes/面试问题集.md`
-4. 当前工作目录下的 `notes/面试问题集.md`
+2. 仓库根目录的 `.interview-question-path` 指针文件
+3. 环境变量 `REPO_ROOT` 指定的仓库根目录下的 `notes/面试问题集.md`
+4. `git rev-parse --show-toplevel` 推断的仓库根目录下的 `notes/面试问题集.md`
+5. 当前工作目录下的 `notes/面试问题集.md`
+
+`.interview-question-path` 使用第一条非空、非注释行作为路径。相对路径以指针文件所在目录为基准解析；指针存在时必须使用它，不得回退或另建仓库内副本。机器专用指针应加入 `.gitignore`。
 
 > ⚠️ 不要在 SKILL.md 里硬编码本机绝对路径(如 `~/your-username/...` 这种带真实用户名的),否则推送到公开仓库会泄漏用户名和内部项目结构。
 
@@ -74,7 +77,7 @@ Rules for the FAQ entry:
 After inserting the FAQ entry, run:
 
 ```bash
-python3 <skill-dir>/scripts/rebuild_question_index.py <repo-root>/notes/面试问题集.md --updated-date <YYYY-MM-DD>
+python3 <skill-dir>/scripts/rebuild_question_index.py <question-file> --updated-date <YYYY-MM-DD>
 ```
 
 The generated `QUESTION-INDEX` block must appear immediately after `# 面试问题集`, before the introduction and detailed category sections. It contains the statistics table first and the categorized question List second.
@@ -87,12 +90,13 @@ The generated `QUESTION-INDEX` block must appear immediately after `# 面试问�
 - Remove the legacy statistics section from the bottom; never keep duplicate statistics tables.
 
 ### Step 7: Save
-Write the updated file back. The automated git task (weekdays 21:20) will push it to GitHub.
+Write the updated file back to the resolved canonical path. Do not copy it into the current repository, commit it, or push it unless the user explicitly requests that action.
 
 ## File Location
 
-- Question file: `<repo-root>/notes/面试问题集.md`
+- Question file:由 `INTERVIEW_QUESTION_FILE`、`.interview-question-path` 或仓库默认路径解析
 - 仓库根目录运行时由 `git rev-parse --show-toplevel` 或环境变量 `REPO_ROOT` 推断,不硬编码本机绝对路径
+- 指针存在时始终复用指针目标,不要创建第二份题库
 
 ## File Structure (Reference)
 

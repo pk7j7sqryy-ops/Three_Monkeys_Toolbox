@@ -48,7 +48,7 @@ Three_Monkeys_Toolbox/
 
 - daily-study-digest v4 已完成主动复盘流程
 - convert-files-to-markdown 已支持多格式转换
-- Interview Tracker 已支持索引重建（累计 4 题）
+- Interview Tracker 已支持本地路径指针与索引重建
 - 跨 Agent 安装器已支持 Skill 资源目录
 - Sentinel 已确定本地 Ollama 优先策略
 - Sentinel 模型层已采用 Provider 解耦

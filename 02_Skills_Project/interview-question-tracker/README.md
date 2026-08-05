@@ -36,15 +36,18 @@
 
 ## 输出文件
 
-`<repo-root>/notes/面试问题集.md`
+默认写入 `<repo-root>/notes/面试问题集.md`,也可通过本地指针指定仓库外的唯一题库。
 
 按 9 大领域分节,文末有累计统计表。
 
 仓库根定位方式(按优先级,从上到下取第一个匹配的):
 1. 环境变量 `INTERVIEW_QUESTION_FILE`(指定完整文件路径)
-2. 环境变量 `REPO_ROOT` 指定的仓库根目录下的 `notes/面试问题集.md`
-3. `git rev-parse --show-toplevel` 推断的仓库根目录下的 `notes/面试问题集.md`
-4. 当前工作目录下的 `notes/面试问题集.md`
+2. 仓库根目录 `.interview-question-path` 第一条有效路径(相对路径按指针所在目录解析)
+3. 环境变量 `REPO_ROOT` 指定的仓库根目录下的 `notes/面试问题集.md`
+4. `git rev-parse --show-toplevel` 推断的仓库根目录下的 `notes/面试问题集.md`
+5. 当前工作目录下的 `notes/面试问题集.md`
+
+指针存在时不会回退或另建仓库内副本。机器专用的 `.interview-question-path` 应加入 `.gitignore`,避免公开本地目录布局。
 
 迁移到其他仓库不需要改代码,只需把 skill 拷过去即可。SKILL.md 不含本机绝对路径。
 

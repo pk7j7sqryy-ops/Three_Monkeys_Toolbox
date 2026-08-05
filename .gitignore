@@ -17,6 +17,10 @@ Icon
 # Claude local state
 .claude/settings.local.json
 
+# Local interview question bank
+.interview-question-path
+/notes/面试问题集.md
+
 # redact-sensitive-paths 本地配置和映射表(含敏感信息)
 .redact/
 !.redact/*.example.json
