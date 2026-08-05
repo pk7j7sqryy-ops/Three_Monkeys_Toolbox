@@ -402,7 +402,9 @@ SECURITY_AGENT_PROMPT = """你是 3Monkeys Sentinel，一个网络安全分析 A
 | 流量采集 | Scapy | 纯 Python，灵活，Mac 原生支持 |
 | 规则引擎 | Python regex（内置规则） | 快速，无外部依赖 |
 | **Agent 框架** | **LangGraph** | 支持循环/条件分支/状态管理，适合 Agent 推理循环 |
-| 本地 LLM | Ollama + Qwen2.5-7B-Instruct | Mac 可跑，支持 tool calling，中文好 |
+| 本地 LLM | Ollama + 7B～14B 级指令模型 | 默认运行路径，个人设备可部署，具体模型通过评估选择 |
+| 模型适配 | 统一 `LLMProvider` | Agent 图不绑定模型厂商，支持本地模型替换 |
+| 可选远程模型 | Kimi K3 API 等 | 默认关闭，仅用于手动脱敏深度调查或开发期辅助，不做本地部署 |
 | 模型微调 | LoRA (PEFT) | 低成本定制安全领域 |
 | 短期记忆 | LangGraph State | 框架内置，自动管理 |
 | 长期记忆 | SQLite + ChromaDB | SQLite 存结构化事件，ChromaDB 存向量检索 |
@@ -646,18 +648,17 @@ Phase 1 可以裸写快速验证，Phase 2 升级到 LangGraph。
 如果每个包都走 Agent，1000 包/秒 × 500ms = 完全不可行。
 双层设计让 Agent 只处理真正需要深度分析的流量。
 
-### 3. 为什么用 Ollama + Qwen2.5-7B 而不是 GPT-4
+### 3. 为什么采用本地优先的 Provider 策略
 
-| | GPT-4 API | Ollama + Qwen2.5-7B |
-|--|---|---|
-| 隐私 | 流量数据发到 OpenAI | 数据不出本机 |
-| 延迟 | 500-2000ms（网络） | 200-500ms（本地） |
-| 成本 | $0.01-0.03/次调用 | 免费 |
-| Tool Calling | 原生支持 | Qwen2.5 支持 |
-| 微调 | 不支持 | 支持 LoRA |
-| 离线 | 不支持 | 完全离线 |
+| 路径 | 作用 | 默认状态 |
+|------|------|---------|
+| Ollama 本地模型 | 日常调查、只读工具编排、离线运行 | 启用 |
+| Kimi K3 等远程模型 | 用户手动触发的脱敏深度调查 | 禁用 |
+| 仅规则引擎 | 本地模型不可用时的安全降级 | 自动 |
 
-安全场景下数据隐私是第一位的——流量数据包含 IP、payload 等敏感信息，不能发到云端。
+Kimi K3 参数规模不适合个人设备自托管，因此本项目不把部署 K3 作为目标。Agent 只依赖统一 `LLMProvider` 接口；MVP 使用本地模型，远程模型以后按需增加，不改变 Agent 图。
+
+远程 Provider 必须满足四个约束：用户显式确认、输入字段脱敏、只暴露只读工具、输出仅作为建议。详细设计见 [`model_strategy.md`](./model_strategy.md)。
 
 ### 4. 响应策略分级
 

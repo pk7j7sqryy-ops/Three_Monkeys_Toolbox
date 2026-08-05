@@ -20,6 +20,7 @@
 - 第二层 — LangGraph Agent(200-2000ms,处理 10% 可疑流量,自主决定分析路径)
 - 记忆系统 — 短期 State + 长期 SQLite IP 画像 + 向量记忆(ChromaDB)
 - 响应策略 — critical/high/medium/low 四级,对应自动封禁 / 通知 / 报告等动作
+- 模型策略 — 本地 Ollama 默认运行,统一 Provider 解耦;Kimi K3 仅作可选远程/开发期能力
 
 Agent 推理循环:`THINK → ACT → OBSERVE → 判断是否继续 → RESPONSE`。
 
@@ -32,7 +33,7 @@ Agent 推理循环:`THINK → ACT → OBSERVE → 判断是否继续 → RESPONS
 | 后端 | FastAPI |
 | 流量采集 | Scapy |
 | Agent 框架 | LangGraph |
-| 本地 LLM | Ollama + Qwen2.5-7B-Instruct(支持 LoRA 微调 + Q4 量化) |
+| LLM | Ollama 本地模型(默认) + 可插拔 Provider;Kimi K3 默认禁用且不本地部署 |
 | 长期记忆 | SQLite + ChromaDB |
 | 实时通信 | WebSocket |
 
@@ -48,7 +49,8 @@ docs/
 │   ├── architecture.md          # 整体架构、Agent 推理循环、技术选型
 │   ├── agent_graph.md           # LangGraph 状态机设计
 │   ├── api_schema.md            # REST + WebSocket 接口契约
-│   └── memory_system.md         # 三层记忆系统 + T1-T6 数据分级管道
+│   ├── memory_system.md         # 三层记忆系统 + T1-T6 数据分级管道
+│   └── model_strategy.md        # 本地优先模型策略 + 可选 Kimi K3 边界
 ├── testing/
 │   └── testing_strategy.md      # 测试金字塔、评估数据集
 └── reference/
