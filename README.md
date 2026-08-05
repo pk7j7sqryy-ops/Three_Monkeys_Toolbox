@@ -47,11 +47,12 @@ Three_Monkeys_Toolbox/
 ## 当前进度
 
 - daily-study-digest v4 已完成主动复盘流程
-- 已支持 SHA256 manifest 增量识别
-- 已支持 MindManager 大纲与图片审读
-- 已增加 digest 结构与用户区块校验
+- convert-files-to-markdown 已支持多格式转换
+- Interview Tracker 已支持索引重建（累计 4 题）
 - 跨 Agent 安装器已支持 Skill 资源目录
-- convert-files-to-markdown 已支持多格式忠实转换
+- Sentinel 已确定本地 Ollama 优先策略
+- Sentinel 模型层已采用 Provider 解耦
+- Kimi K3 定位为可选脱敏调查能力
 
 ## 三不猴设计理念
 
