@@ -1,6 +1,6 @@
 ---
 name: "interview-question-tracker"
-description: "Archives technical questions from conversation into a categorized FAQ-style interview prep file. Invoke when the user asks a technical question about Python, OS, databases, Docker, LLM, Agent, ML/RL, deep learning, or security."
+description: "Archives technical questions from conversation into a categorized FAQ-style interview prep file and maintains a categorized question-only List at the top for rapid review. Invoke when the user asks a technical question about Python, OS, databases, Docker, LLM, Agent, ML/RL, deep learning, or security."
 ---
 
 # Interview Question Tracker
@@ -69,8 +69,22 @@ Rules for the FAQ entry:
 - Do NOT record the full Q&A — only the question + key points for self-testing
 - Today's date in backticks
 
-### Step 6: Update the Statistics Table
-Increment the question count for the corresponding category and the total. Update the "最后更新" date at the bottom.
+### Step 6: Rebuild Statistics and the Question List at the Top
+
+After inserting the FAQ entry, run:
+
+```bash
+python3 <skill-dir>/scripts/rebuild_question_index.py <repo-root>/notes/面试问题集.md --updated-date <YYYY-MM-DD>
+```
+
+The generated `QUESTION-INDEX` block must appear immediately after `# 面试问题集`, before the introduction and detailed category sections. It contains the statistics table first and the categorized question List second.
+
+- List every real question once, grouped by the same category as the detailed entry.
+- Preserve existing question numbers, including gaps; do not invent missing questions or silently renumber history.
+- Exclude examples inside HTML comments and placeholder questions.
+- Replace the managed block on every update instead of appending a second List.
+- Derive every category count and the total from actual FAQ entries, not from the highest Q number.
+- Remove the legacy statistics section from the bottom; never keep duplicate statistics tables.
 
 ### Step 7: Save
 Write the updated file back. The automated git task (weekdays 21:20) will push it to GitHub.
@@ -84,6 +98,14 @@ Write the updated file back. The automated git task (weekdays 21:20) will push i
 
 ```markdown
 # 面试问题集
+
+<!-- QUESTION-INDEX:START -->
+## 累计统计
+<!-- Generated statistics table -->
+
+## 问题速查 List
+<!-- Generated category/question bullets -->
+<!-- QUESTION-INDEX:END -->
 
 ## 一、Python
 <!-- Questions appended here -->
@@ -128,5 +150,6 @@ Write the updated file back. The automated git task (weekdays 21:20) will push i
 - This skill should work silently after the main answer — do not make a big announcement, just mention "已归档" briefly
 - If the question file doesn't exist yet, create it with the full structure
 - Always read the file before editing to avoid overwriting
+- Always keep the generated statistics and question List at the top synchronized with the detailed FAQ entries
 - The FAQ entry should be concise enough for quick review before interviews
 - Use Chinese for all content in the question file (matching the user's language)
