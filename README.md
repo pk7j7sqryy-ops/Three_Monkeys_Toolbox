@@ -26,7 +26,8 @@ Three_Monkeys_Toolbox/
 │   ├── 3Monkeys Sentinel/    # AI 网络安全 Agent(双层检测 + Agent 推理循环)
 │   └── aiagent-covert-channel-scan/ # AI Agent 客户端隐蔽信道审计 Skill
 │
-└── 04_Other_Project/         # 其他零散工具(预留)
+└── 04_Other_Project/         # 轻量独立工具
+    └── 证件照制作工具/       # 单 HTML 本地抠图、换底色与冲印排版
 ```
 
 ## 项目矩阵
@@ -43,6 +44,7 @@ Three_Monkeys_Toolbox/
 | [convert-files-to-markdown](./02_Skills_Project/convert-files-to-markdown) | 通用 Agent Skill | PDF、Word、MindManager、Python、Notebook 忠实转换为通用 Markdown | 可用 |
 | [3Monkeys Sentinel](./03_Security_Project/3Monkeys%20Sentinel) | 安全 Agent | AI 自主网络安全检测与响应 Agent(LangGraph + 记忆 + 微调) | 设计阶段 |
 | [aiagent-covert-channel-scan](./03_Security_Project/aiagent-covert-channel-scan) | 安全 Skill | 扫描 AI Agent 客户端(Claude Code / Cursor / Cline)隐蔽信道 | 可用 |
+| [证件照制作工具](./04_Other_Project/%E8%AF%81%E4%BB%B6%E7%85%A7%E5%88%B6%E4%BD%9C%E5%B7%A5%E5%85%B7) | 前端工具 | 单 HTML 本地抠图、背景替换与 6 寸冲印排版 | 可用 |
 
 ## 当前进度
 
@@ -53,6 +55,7 @@ Three_Monkeys_Toolbox/
 - Sentinel 已确定本地 Ollama 优先策略
 - Sentinel 模型层已采用 Provider 解耦
 - Kimi K3 定位为可选脱敏调查能力
+- 证件照工具完成轻量化与隐私加固（2026-08-10）
 
 ## 三不猴设计理念
 
