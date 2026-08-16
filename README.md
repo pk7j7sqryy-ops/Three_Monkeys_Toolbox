@@ -10,6 +10,7 @@
 Three_Monkeys_Toolbox/
 ├── 01_Ai_Project/             # AI 应用项目
 │   ├── AI learning website 2/  # Ailearn · 离线学习管理网站(笔记/刷题/任务/错题/复盘)
+│   ├── deepseek-harness/      # DeepSeek Harness 插件集(Token Pet)
 │   └── three-monkeys-toolbox/ # 品牌设计文档 HTML 站
 │
 ├── 02_Skills_Project/         # 通用 Agent Skill 集合(兼容 TRAE/Claude Code/Codex/Cursor/Cline)
@@ -35,6 +36,7 @@ Three_Monkeys_Toolbox/
 | 项目 | 类型 | 简介 | 状态 |
 |---|---|---|---|
 | [Ailearn](./01_Ai_Project/AI%20learning%20website%202) | AI 应用 | 纯前端离线学习闭环系统(SM-2 间隔重复 + 本地 Ollama AI 辅助) | 可用 |
+| [Token Pet](./01_Ai_Project/deepseek-harness/token-pet) | DSH 插件 | 布布玩偶 + Token 用量 + 天气与三日预报 | 可用 |
 | [Three Monkeys Toolbox HTML](./01_Ai_Project/three-monkeys-toolbox) | 设计文档 | 品牌门户单文件 HTML(深色主题 + Mermaid) | 可用 |
 | [auto-update-readme](./02_Skills_Project/auto-update-readme) | 通用 Agent Skill | Git 提交前自动更新 README「当前进度」 | 可用 |
 | [interview-question-tracker](./02_Skills_Project/interview-question-tracker) | 通用 Agent Skill | 技术问题自动归档为 9 大领域 FAQ 面试题集 | 可用 |
@@ -53,8 +55,8 @@ Three_Monkeys_Toolbox/
 - Interview Tracker 已支持本地路径指针与索引重建
 - 跨 Agent 安装器已支持 Skill 资源目录
 - Sentinel 已确定本地 Ollama 优先策略
-- Sentinel 模型层已采用 Provider 解耦
-- Kimi K3 定位为可选脱敏调查能力
+- Sentinel 模型层已采用 Provider 解耦，Kimi K3 可选
+- Token Pet 已支持 Bundle 安装与三日天气（2026-08-16）
 - 证件照工具完成轻量化与隐私加固（2026-08-10）
 
 ## 三不猴设计理念
